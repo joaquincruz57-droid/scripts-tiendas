@@ -1020,7 +1020,7 @@
       transf:10,      // % de descuento por transferencia
       cuotas:3,       // cuotas sin interés
       fuente:"",      // "" = usa la tipografía de tu tienda
-      ig:"https://www.instagram.com/munatika_artesanias/",
+      wa:"543884667523", // WhatsApp con código de país
       despacho:"pocos días hábiles" // texto resaltado en la barra verde
     };
     /* =========================== */
@@ -1042,7 +1042,7 @@
       return parseFloat(s)||0;
     }
     function fmt(v){return "$"+Math.round(v).toLocaleString("es-AR");}
-    function isMine(el){return !!(el.closest&&el.closest(".mnp-pay,.mnp-after,.mnp-bar,.mnp-tick"));}
+    function isMine(el){return !!(el.closest&&el.closest(".mnp-pay,.mnp-after,.mnp-bar,.mnp-wa"));}
 
     function start(){
       if(window.__mnpDone)return true;
@@ -1052,21 +1052,17 @@
 
       /* ---------- CSS ---------- */
       addCSS(`
-.mnp-tick,.mnp-pay,.mnp-after,.mnp-bar{--mnp-orange:#B65F36;--mnp-green:#21301D;--mnp-cream:#f7f1e8;font-family:var(--mnp-font,inherit)}
-.mnp-tick *,.mnp-pay *,.mnp-after *,.mnp-bar *{box-sizing:border-box}
+.mnp-pay,.mnp-after,.mnp-bar{--mnp-orange:#B65F36;--mnp-green:#21301D;--mnp-cream:#f7f1e8;font-family:var(--mnp-font,inherit)}
+.mnp-pay *,.mnp-after *,.mnp-bar *{box-sizing:border-box}
 .mnp-hide{display:none !important}
 
-.mnp-tick{overflow:hidden;white-space:nowrap;background:var(--mnp-green);color:#fff;padding:11px 0}
-.mnp-tick-track{display:inline-flex;animation:mnpMarq 32s linear infinite}
-.mnp-tick span{margin-right:34px;font-size:12px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase}
-.mnp-tick b{color:#e69a70;font-weight:800}
 @keyframes mnpMarq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
 .mnp-title{font-weight:800 !important;letter-spacing:-.02em !important;line-height:1.05 !important}
 .mnp-lbl{display:block;width:100%;flex-basis:100%;margin:16px 0 2px;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8a8076}
 .mnp-price{font-weight:800 !important;letter-spacing:-.02em;font-size:clamp(2.3rem,5vw,3.3rem) !important;line-height:1.05 !important}
 
-.mnp-pay{margin:20px 0 22px;display:grid;gap:12px}
+.mnp-pay{margin:20px 0 22px;display:grid;gap:12px;min-width:0;max-width:100%}
 .mnp-best{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ic lb pr" "ic sb pr";column-gap:16px;align-items:center;padding:18px 22px;border-radius:22px;background:var(--mnp-green);color:#fff;box-shadow:0 12px 28px rgba(33,48,29,.28)}
 .mnp-best-ic{grid-area:ic;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#e69a70}
 .mnp-best-ic svg{width:24px;height:24px}
@@ -1078,7 +1074,7 @@
 .mnp-cuo span{flex:1;text-align:center;letter-spacing:.5px;text-transform:uppercase}
 .mnp-cuo strong{font-size:1.4rem;font-weight:800;color:#0a0a0a;letter-spacing:-.01em}
 
-.mnp-after{margin-top:22px}
+.mnp-after{margin-top:22px;min-width:0;max-width:100%}
 .mnp-after p{margin:0}
 .mnp-ship{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:14px 18px;border-radius:14px;background:#e9f3e6;border:1px solid #bfdcb8;color:var(--mnp-green);font-size:16px;line-height:1.3}
 .mnp-ship-ic{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--mnp-green);color:#fff}
@@ -1087,7 +1083,7 @@
 .mnp-rate{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:10px;font-size:15px;color:#5d554c}
 .mnp-rate i{font-style:normal;color:var(--mnp-orange);letter-spacing:2px;font-size:17px}
 .mnp-rate b{color:#0a0a0a;font-weight:800}
-.mnp-rev{overflow:hidden;margin-bottom:16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.mnp-rev{width:0;min-width:100%;max-width:100%;contain:inline-size;overflow:hidden;margin-bottom:16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 .mnp-rev-track{display:flex;width:max-content;animation:mnpMarq 48s linear infinite}
 .mnp-rev:hover .mnp-rev-track,.mnp-rev:active .mnp-rev-track{animation-play-state:paused}
 .mnp-rc{flex:0 0 auto;width:250px;margin-right:12px;padding:14px 16px;background:#fff;border:1px solid #e6e2dc;border-radius:16px}
@@ -1118,8 +1114,6 @@
 .mnp-fi.on .mnp-fa{grid-template-rows:1fr}
 .mnp-fa p{padding:0 18px 18px 48px;font-size:14.5px;line-height:1.6;color:#555}
 
-.mnp-badge{position:absolute;left:14px;bottom:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.12);font-family:var(--mnp-font,inherit);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#21301D;pointer-events:none}
-.mnp-badge i{font-style:normal;color:#B65F36;letter-spacing:1px}
 
 .mnp-bar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9990;display:none;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #eee3d4;border-radius:22px;box-shadow:0 10px 36px rgba(0,0,0,.24);transform:translateY(150%);transition:transform .35s ease}
 .mnp-bar.on{transform:none}
@@ -1129,11 +1123,26 @@
 .mnp-bar-i span{font-size:16px;font-weight:800;color:#0a0a0a}
 .mnp-bar-i em{font-style:normal;font-size:13px;font-weight:700;color:var(--mnp-orange)}
 .mnp-bar-s{flex:none;max-width:84px;height:46px;padding:0 8px;border:1px solid #ddd;border-radius:999px;background:#fff;font-family:inherit;font-size:14px;color:#0a0a0a}
-.mnp-bar-b{flex:none;height:46px;padding:0 20px;border:0;border-radius:999px;background:var(--mnp-orange);color:#fff;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}
+.mnp-bar-b{flex:none;height:46px;padding:0 22px;border:0;border-radius:999px;background:linear-gradient(135deg,#d97a4a 0%,#B65F36 55%,#94491f 100%);color:#fff;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;animation:mnpPulse 2.2s ease-out infinite}
 .mnp-bar-b:active{filter:brightness(.92)}
 
+@keyframes mnpPulse{
+  0%{box-shadow:0 0 0 0 rgba(182,95,54,.55),0 12px 26px rgba(182,95,54,.38)}
+  70%{box-shadow:0 0 0 16px rgba(182,95,54,0),0 12px 26px rgba(182,95,54,.38)}
+  100%{box-shadow:0 0 0 0 rgba(182,95,54,0),0 12px 26px rgba(182,95,54,.38)}
+}
+.mnp-row{align-items:center}
+.mnp-row>[class*="col-8"]{padding-left:12px !important}
+.mnp-row .form-quantity{height:58px;border:1px solid #e0d6c8;border-radius:999px;background:#fff;overflow:hidden}
+.mnp-row .form-quantity .form-control{border:0 !important;background:transparent !important;box-shadow:none !important;height:100%;text-align:center;font-weight:700}
+.mnp-buy{border:0 !important;border-radius:999px !important;height:58px;min-height:58px;padding-top:0 !important;padding-bottom:0 !important;background:linear-gradient(135deg,#d97a4a 0%,#B65F36 55%,#94491f 100%) !important;color:#fff !important;font-family:var(--mnp-font,inherit);font-size:15px !important;font-weight:800 !important;letter-spacing:3px !important;text-transform:uppercase;line-height:58px;cursor:pointer;animation:mnpPulse 2.2s ease-out infinite;transition:transform .2s ease,filter .2s ease}
+.mnp-buy:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.mnp-buy:active{transform:scale(.98)}
+.mnp-buy:disabled,.mnp-buy.disabled{animation:none;filter:grayscale(.35);opacity:.75;cursor:not-allowed}
+.mnp-wa{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:9980;width:58px;height:58px;display:grid;place-items:center;border-radius:50%;background:#25D366;color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:bottom .35s ease,transform .2s ease}
+.mnp-wa:hover{transform:scale(1.07)}
+.mnp-wa svg{width:30px;height:30px}
 @media (max-width:900px){
-  .mnp-tick span{font-size:11px;letter-spacing:2px;margin-right:26px}
   .mnp-best{grid-template-columns:auto 1fr;grid-template-areas:"ic lb" "ic pr" "ic sb";padding:16px 18px;row-gap:2px;border-radius:20px}
   .mnp-best-ic{width:46px;height:46px}
   .mnp-best-pr{font-size:2rem}
@@ -1144,9 +1153,10 @@
   .mnp-tc span{font-size:12px}
   .mnp-bar{display:flex}
   body.mnp-has-bar{padding-bottom:92px}
+  body.mnp-has-bar .mnp-wa{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:reduce){
-  .mnp-tick-track,.mnp-rev-track{animation:none}
+  .mnp-rev-track,.mnp-buy,.mnp-bar-b{animation:none}
   .mnp-rev{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
   .mnp-bar,.mnp-fa{transition:none}
 }
@@ -1170,6 +1180,7 @@
       }
 
       var nombre=h1?h1.textContent.trim():document.title;
+      var WA="https://wa.me/"+CFG.wa+"?text="+encodeURIComponent("Hola! Quiero consultar por: "+nombre);
       var ogm=document.querySelector('meta[property="og:image"]');
       var imgSrc=ogm?ogm.getAttribute("content"):"";
 
@@ -1185,18 +1196,6 @@
         var m=document.querySelector('meta[property="product:price:amount"]');
         return m?parse(m.getAttribute("content")):0;
       }
-
-      /* ---------- Cinta de beneficios ---------- */
-      var items=['10% OFF <b>TRANSFERENCIA</b>','<b>'+CFG.cuotas+' CUOTAS</b> SIN INTERÉS','ENVÍOS A TODO EL <b>PAÍS</b>','HECHO A <b>MANO</b>'];
-      var tk="";
-      for(var r=0;r<2;r++) items.forEach(function(x){tk+='<span>✦ '+x+'</span>';});
-      var tick=document.createElement("div");
-      tick.className="mnp-tick";
-      tick.setAttribute("aria-hidden","true");
-      tick.innerHTML='<div class="mnp-tick-track">'+tk+tk+'</div>';
-      var hdr=document.querySelector("header, #header, .js-head-main");
-      if(hdr&&hdr.parentNode) hdr.insertAdjacentElement("afterend",tick);
-      else document.body.insertBefore(tick,document.body.firstChild);
 
       /* ---------- Tarjetas de precio ---------- */
       var pay=document.createElement("div");
@@ -1240,13 +1239,13 @@
         '<div class="mnp-pays" aria-label="Medios de pago">'+logosHTML+'</div>'+
         '<div class="mnp-trust">'+
           '<div class="mnp-tc">'+ICO.back+'<strong>Cambios y devoluciones</strong><span>Producto sin uso y en perfecto estado</span></div>'+
-          '<div class="mnp-tc">'+ICO.chat+'<strong>Atención personalizada</strong><span>Te respondemos por Instagram</span></div>'+
+          '<div class="mnp-tc">'+ICO.chat+'<strong>Atención personalizada</strong><span>Te respondemos por WhatsApp</span></div>'+
           '<div class="mnp-tc">'+ICO.truck+'<strong>Envíos a todo el país</strong><span>Rápidos y seguros</span></div>'+
         '</div>'+
-        '<p class="mnp-help">¿Dudas con este producto? <a href="'+CFG.ig+'" target="_blank" rel="noopener">Escribinos por Instagram</a></p>'+
+        '<p class="mnp-help">¿Dudas con este producto? <a href="'+WA+'" target="_blank" rel="noopener">Escribinos por WhatsApp</a></p>'+
         '<div class="mnp-faq">'+
-          faqItem(ICO.shield,"¿Qué pasa si tengo un problema con mi compra?","Escribinos por Instagram y lo resolvemos lo antes posible. Estamos para ayudarte antes y después de tu compra.")+
-          faqItem(ICO.back,"¿Puedo cambiar o devolver el producto?","Sí. Podés pedir el cambio si el producto está sin uso y en perfecto estado. Escribinos por Instagram y te indicamos los pasos.")+
+          faqItem(ICO.shield,"¿Qué pasa si tengo un problema con mi compra?","Escribinos por WhatsApp y lo resolvemos lo antes posible. Estamos para ayudarte antes y después de tu compra.")+
+          faqItem(ICO.back,"¿Puedo cambiar o devolver el producto?","Sí. Podés pedir el cambio si el producto está sin uso y en perfecto estado. Escribinos por WhatsApp y te indicamos los pasos.")+
           faqItem(ICO.truck,"¿Cómo sé dónde está mi pedido?","Una vez despachado, te llega el código de seguimiento para que sigas tu envío.")+
         '</div>';
       form.insertAdjacentElement("afterend",after);
@@ -1265,16 +1264,6 @@
         });
       });
 
-      /* ---------- Sello sobre la foto ---------- */
-      var g=document.querySelector(".js-product-slider-container, .js-swiper-product, .product-image-container, .js-product-gallery, [data-store='product-image']");
-      if(g){
-        if(getComputedStyle(g).position==="static") g.style.position="relative";
-        var bd=document.createElement("span");
-        bd.className="mnp-badge";
-        bd.innerHTML='<i>★★★★★</i> Hecho a mano';
-        g.appendChild(bd);
-      }
-
       /* ---------- Barra fija (celular) ---------- */
       var bar=document.createElement("div");
       bar.className="mnp-bar";
@@ -1286,7 +1275,7 @@
       document.body.appendChild(bar);
 
       var barBtn=bar.querySelector(".mnp-bar-b");
-      function realBtn(){return form.querySelector(".js-addtocart, .js-prod-submit-form, input[type=submit], button[type=submit]");}
+      function realBtn(){return form.querySelector("input.js-prod-submit-form, .js-prod-submit-form, .js-addtocart, input[type=submit], button[type=submit]");}
 
       barBtn.addEventListener("click",function(){
         var b=realBtn();
@@ -1330,21 +1319,70 @@
         },{threshold:0}).observe(target);
       }
 
-      /* ---------- Textos de transferencia repetidos del tema ---------- */
+      /* ---------- Limpiar textos/íconos repetidos entre el precio y el botón ---------- */
       function hideDup(){
         var root=form;
         while(root.parentElement&&h1&&!root.contains(h1)) root=root.parentElement;
+        var all=root.querySelectorAll("*"),label=null,a,el;
+        // Se conserva la etiqueta "-24% OFF" junto al precio
+        for(a=0;a<all.length;a++){
+          var tx=all[a].textContent.trim();
+          if(tx.length<20&&/^-?\s*\d+\s*%\s*off$/i.test(tx)&&!isMine(all[a])){label=all[a];break;}
+        }
+        if(priceEl){
+          for(a=0;a<all.length;a++){
+            el=all[a];
+            if(isMine(el)||el.classList.contains("mnp-hide")) continue;
+            if(el.contains(form)||el.contains(pay)||(h1&&el.contains(h1))) continue;
+            if(el===priceEl||el.contains(priceEl)||priceEl.contains(el)) continue;
+            if(label&&(el===label||el.contains(label)||label.contains(el))) continue;
+            if(el.closest("[role=dialog],.modal,.js-modal,[class*=modal],header,footer,nav")) continue;
+            if(!(priceEl.compareDocumentPosition(el)&4)) continue;
+            if(!(el.compareDocumentPosition(pay)&4)) continue;
+            el.classList.add("mnp-hide");
+          }
+        }
+        // Respaldo: textos de transferencia sueltos
         var els=root.querySelectorAll("div,p,span,li");
         for(var k=0;k<els.length;k++){
-          var el=els[k];
-          if(isMine(el)||el.classList.contains("mnp-hide")) continue;
-          if(el.closest("[role=dialog],.modal,.js-modal,[class*=modal],.user-content,[class*=description],header,footer,nav")) continue;
-          if(el.contains(form)||(h1&&el.contains(h1))||(priceEl&&el.contains(priceEl))) continue;
+          var e2=els[k];
+          if(isMine(e2)||e2.classList.contains("mnp-hide")) continue;
+          if(e2.closest("[role=dialog],.modal,.js-modal,[class*=modal],.user-content,[class*=description],header,footer,nav")) continue;
+          if(e2.contains(form)||(h1&&e2.contains(h1))||(priceEl&&e2.contains(priceEl))||e2.contains(pay)) continue;
           var own="";
-          for(var q=0;q<el.childNodes.length;q++){if(el.childNodes[q].nodeType===3) own+=el.childNodes[q].nodeValue;}
-          if(/transferencia/i.test(own)) el.classList.add("mnp-hide");
+          for(var q=0;q<e2.childNodes.length;q++){if(e2.childNodes[q].nodeType===3) own+=e2.childNodes[q].nodeValue;}
+          if(/transferencia/i.test(own)) e2.classList.add("mnp-hide");
         }
       }
+
+      /* ---------- Botón "Comprar" ---------- */
+      function styleBuy(){
+        var b=form.querySelector("input.js-prod-submit-form, .js-prod-submit-form");
+        var ph=form.querySelector(".js-addtocart-placeholder");
+        if(b){
+          b.classList.add("mnp-buy");
+          if(/agregar al carrito/i.test(b.value||"")) b.value="Comprar";
+          var row=b.closest(".row");
+          if(row) row.classList.add("mnp-row");
+        }
+        if(ph){
+          ph.classList.add("mnp-buy");
+          var t=ph.querySelector(".js-addtocart-text");
+          if(t&&/agregar al carrito/i.test(t.textContent)) t.textContent="Comprar";
+        }
+      }
+      styleBuy();
+      setInterval(styleBuy,700);
+
+      /* ---------- Botón flotante de WhatsApp ---------- */
+      var wa=document.createElement("a");
+      wa.className="mnp-wa";
+      wa.href=WA;
+      wa.target="_blank";
+      wa.rel="noopener";
+      wa.setAttribute("aria-label","Escribinos por WhatsApp");
+      wa.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-5.5A8 8 0 1 1 21 12z"/><g transform="translate(6.6 6.6) scale(.45)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2.6"/></g></svg>';
+      document.body.appendChild(wa);
 
       /* ---------- Actualizar precios ---------- */
       function set(sel,txt){var n=pay.querySelector(sel);if(n)n.textContent=txt;}
