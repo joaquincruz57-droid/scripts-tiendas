@@ -1,18 +1,35 @@
 /* ==========================================================
-   MUNATIKA - Secciones del inicio (archivo único)
-   Incluye: Categorías, Instagram, Tienda, Local, Preguntas, Reseñas
+   MUNATIKA - Secciones del inicio + Página de producto (archivo único)
+   Inicio: Categorías, Instagram, Tienda, Local, Preguntas, Reseñas
+   Producto: precio con transferencia, cuotas, reseñas infinitas,
+             confianza, preguntas y barra fija "Comprar" en celular
    ========================================================== */
 (function(){
   "use strict";
 
-  // Solo en la página de inicio
+  // Detecta en qué página estamos
   var path=location.pathname.replace(/\/+$/,"");
   var isHome=path===""||/^\/[a-z]{2}(-[a-z]{2})?$/i.test(path);
-  if(!isHome)return;
+  var isProduct=/\/productos\/[^\/]+/i.test(path);
+  if(!isHome&&!isProduct)return;
 
   // Evita que se cargue dos veces
   if(window.__munatikaLoaded)return;
   window.__munatikaLoaded=true;
+
+  /* =====================================================
+     RESEÑAS DE CLIENTES (se usan en el inicio y en cada producto)
+     Para agregar otra, copiá una línea y cambiá los datos.
+     "producto" es opcional (dejalo vacío "" si no lo sabés).
+     ===================================================== */
+  var RESENIAS=[
+    {nombre:"Matias R.", lugar:"Córdoba", producto:"", texto:"Muchas gracias por la atención, fuimos de vacaciones y pasamos por el local. Es hermoso todo lo que tienen.", estrellas:5},
+    {nombre:"Sofia Y.", lugar:"Buenos Aires", producto:"", texto:"Quedé enamorada de las cosas que tienen. En invierno fuimos y todo hermoso.", estrellas:5},
+    {nombre:"Maria Jose S.", lugar:"Jujuy", producto:"", texto:"Siempre que venimos al norte nos compramos cositas acá. Es hermoso y la atención es genial!", estrellas:5},
+    {nombre:"Nadia M.", lugar:"Santa Cruz", producto:"", texto:"Mis hijos se compraron de todo, todo muy lindo, artesanal y camperas hermosas de abrigo.", estrellas:5},
+    {nombre:"Carlos S.", lugar:"Tucumán", producto:"", texto:"Mi esposa encantada con las cosas que compró en este local. Son cosas muy lindas.", estrellas:5},
+    {nombre:"Martina G.", lugar:"Salta", producto:"", texto:"Nada que decir, son excelentes las cosas que tienen!", estrellas:5}
+  ];
 
   /* ---------- Utilidades ---------- */
   function ready(fn){
@@ -821,23 +838,10 @@
   }
 
   /* ==========================================================
-     5) RESEÑAS
+     5) RESEÑAS (inicio)
+     Las reseñas se editan arriba, en la lista RESENIAS.
      ========================================================== */
   function resenias(){
-    /* =====================================================
-       RESEÑAS DE CLIENTES
-       Para agregar otra, copiá una línea y cambiá los datos.
-       "producto" es opcional (dejalo vacío "" si no lo sabés).
-       ===================================================== */
-    var RESENIAS=[
-      {nombre:"Matias R.", lugar:"Córdoba", producto:"", texto:"Muchas gracias por la atención, fuimos de vacaciones y pasamos por el local. Es hermoso todo lo que tienen.", estrellas:5},
-      {nombre:"Sofia Y.", lugar:"Buenos Aires", producto:"", texto:"Quedé enamorada de las cosas que tienen. En invierno fuimos y todo hermoso.", estrellas:5},
-      {nombre:"Maria Jose S.", lugar:"Jujuy", producto:"", texto:"Siempre que venimos al norte nos compramos cositas acá. Es hermoso y la atención es genial!", estrellas:5},
-      {nombre:"Nadia M.", lugar:"Santa Cruz", producto:"", texto:"Mis hijos se compraron de todo, todo muy lindo, artesanal y camperas hermosas de abrigo.", estrellas:5},
-      {nombre:"Carlos S.", lugar:"Tucumán", producto:"", texto:"Mi esposa encantada con las cosas que compró en este local. Son cosas muy lindas.", estrellas:5},
-      {nombre:"Martina G.", lugar:"Salta", producto:"", texto:"Nada que decir, son excelentes las cosas que tienen!", estrellas:5}
-    ];
-
     if(!RESENIAS.length)return;
 
     addCSS(`
@@ -998,14 +1002,394 @@
     }
   }
 
+  /* ==========================================================
+     6) PÁGINA DE PRODUCTO (landing)
+     - Cinta de beneficios arriba
+     - Precio grande + tarjeta "Mejor precio" por transferencia
+     - 3 cuotas sin interés
+     - Barra de despacho, estrellas y reseñas en carrusel infinito
+     - Medios de pago, confianza, ayuda por Instagram y preguntas
+     - Celular: barra fija abajo con foto + "Comprar" al bajar
+     Tipografía: hereda la de tu tema (la de tu tienda).
+     Si querés forzar otra, poné en CFG.fuente por ej. '"Poppins",sans-serif'
+     ========================================================== */
+  function producto(){
+
+    /* ====== CONFIGURACIÓN ====== */
+    var CFG={
+      transf:10,      // % de descuento por transferencia
+      cuotas:3,       // cuotas sin interés
+      fuente:"",      // "" = usa la tipografía de tu tienda
+      ig:"https://www.instagram.com/munatika_artesanias/",
+      despacho:"pocos días hábiles" // texto resaltado en la barra verde
+    };
+    /* =========================== */
+
+    var ICO={
+      card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+      bolt:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
+      back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
+      chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-5.5A8 8 0 1 1 21 12z"/></svg>',
+      truck:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2"/><circle cx="18.5" cy="18.5" r="2"/></svg>',
+      shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>'
+    };
+
+    function parse(s){
+      s=String(s||"").replace(/[^\d.,]/g,"");
+      if(!s)return 0;
+      if(s.indexOf(",")>-1) s=s.replace(/\./g,"").replace(",",".");
+      else if(/\.\d{3}$/.test(s)) s=s.replace(/\./g,"");
+      return parseFloat(s)||0;
+    }
+    function fmt(v){return "$"+Math.round(v).toLocaleString("es-AR");}
+    function isMine(el){return !!(el.closest&&el.closest(".mnp-pay,.mnp-after,.mnp-bar,.mnp-tick"));}
+
+    function start(){
+      if(window.__mnpDone)return true;
+      var form=document.querySelector("form.js-product-form, form#product_form, form[data-store^='product-form'], .js-product-form");
+      if(!form)return false;
+      window.__mnpDone=true;
+
+      /* ---------- CSS ---------- */
+      addCSS(`
+.mnp-tick,.mnp-pay,.mnp-after,.mnp-bar{--mnp-orange:#B65F36;--mnp-green:#21301D;--mnp-cream:#f7f1e8;font-family:var(--mnp-font,inherit)}
+.mnp-tick *,.mnp-pay *,.mnp-after *,.mnp-bar *{box-sizing:border-box}
+.mnp-hide{display:none !important}
+
+.mnp-tick{overflow:hidden;white-space:nowrap;background:var(--mnp-green);color:#fff;padding:11px 0}
+.mnp-tick-track{display:inline-flex;animation:mnpMarq 32s linear infinite}
+.mnp-tick span{margin-right:34px;font-size:12px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase}
+.mnp-tick b{color:#e69a70;font-weight:800}
+@keyframes mnpMarq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.mnp-title{font-weight:800 !important;letter-spacing:-.02em !important;line-height:1.05 !important}
+.mnp-lbl{display:block;width:100%;flex-basis:100%;margin:16px 0 2px;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#8a8076}
+.mnp-price{font-weight:800 !important;letter-spacing:-.02em;font-size:clamp(2.3rem,5vw,3.3rem) !important;line-height:1.05 !important}
+
+.mnp-pay{margin:20px 0 22px;display:grid;gap:12px}
+.mnp-best{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ic lb pr" "ic sb pr";column-gap:16px;align-items:center;padding:18px 22px;border-radius:22px;background:var(--mnp-green);color:#fff;box-shadow:0 12px 28px rgba(33,48,29,.28)}
+.mnp-best-ic{grid-area:ic;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#e69a70}
+.mnp-best-ic svg{width:24px;height:24px}
+.mnp-best-lb{grid-area:lb;font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.65)}
+.mnp-best-sb{grid-area:sb;font-size:15px;line-height:1.35;color:rgba(255,255,255,.92)}
+.mnp-best-pr{grid-area:pr;font-size:clamp(1.9rem,3vw,2.4rem);font-weight:800;letter-spacing:-.02em;line-height:1}
+.mnp-cuo{display:flex;align-items:center;gap:12px;padding:14px 22px;border:1px solid #e0d6c8;border-radius:999px;background:#fff;font-size:14px;color:#3b342d}
+.mnp-cuo svg{width:22px;height:22px;color:#8a8076;flex:none}
+.mnp-cuo span{flex:1;text-align:center;letter-spacing:.5px;text-transform:uppercase}
+.mnp-cuo strong{font-size:1.4rem;font-weight:800;color:#0a0a0a;letter-spacing:-.01em}
+
+.mnp-after{margin-top:22px}
+.mnp-after p{margin:0}
+.mnp-ship{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:14px 18px;border-radius:14px;background:#e9f3e6;border:1px solid #bfdcb8;color:var(--mnp-green);font-size:16px;line-height:1.3}
+.mnp-ship-ic{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--mnp-green);color:#fff}
+.mnp-ship-ic svg{width:17px;height:17px}
+.mnp-ship b{font-weight:800}
+.mnp-rate{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-bottom:10px;font-size:15px;color:#5d554c}
+.mnp-rate i{font-style:normal;color:var(--mnp-orange);letter-spacing:2px;font-size:17px}
+.mnp-rate b{color:#0a0a0a;font-weight:800}
+.mnp-rev{overflow:hidden;margin-bottom:16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.mnp-rev-track{display:flex;width:max-content;animation:mnpMarq 48s linear infinite}
+.mnp-rev:hover .mnp-rev-track,.mnp-rev:active .mnp-rev-track{animation-play-state:paused}
+.mnp-rc{flex:0 0 auto;width:250px;margin-right:12px;padding:14px 16px;background:#fff;border:1px solid #e6e2dc;border-radius:16px}
+.mnp-rc i{display:block;margin-bottom:6px;font-style:normal;color:var(--mnp-orange);font-size:12px;letter-spacing:2px}
+.mnp-rc p{margin:0 0 8px;font-size:14px;line-height:1.4;color:#333;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mnp-rc b{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#0a0a0a}
+.mnp-pays{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.mnp-pays img{height:30px;width:auto;padding:4px 7px;border:1px solid #e0d6c8;border-radius:8px;background:#fff;object-fit:contain}
+.mnp-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.mnp-tc{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:16px 10px;border:1px solid #e0d6c8;border-radius:16px;background:#fff}
+.mnp-tc svg{width:20px;height:20px;color:var(--mnp-orange)}
+.mnp-tc strong{font-size:15px;font-weight:700;line-height:1.2;color:#0a0a0a}
+.mnp-tc span{font-size:12.5px;line-height:1.35;color:#7a7066}
+.mnp-help{text-align:center;margin-bottom:22px !important;font-size:15px;color:#3b342d}
+.mnp-help a{color:var(--mnp-orange) !important;font-weight:700;text-decoration:underline !important;text-underline-offset:3px}
+.mnp-faq{margin-bottom:10px}
+.mnp-fi{margin-bottom:8px;border:1px solid #e0d6c8;border-radius:14px;background:#faf7f2;overflow:hidden}
+.mnp-fq{width:100%;display:flex;align-items:center;gap:12px;padding:16px 16px;background:none;border:0;cursor:pointer;text-align:left;color:#0a0a0a;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;line-height:1.35}
+.mnp-fq svg{flex:none;width:20px;height:20px;color:#3b342d}
+.mnp-fq span{flex:1}
+.mnp-fq em{flex:none;position:relative;width:18px;height:18px}
+.mnp-fq em::before,.mnp-fq em::after{content:"";position:absolute;top:50%;left:50%;background:#0a0a0a;transform:translate(-50%,-50%);transition:opacity .25s ease}
+.mnp-fq em::before{width:14px;height:2px}
+.mnp-fq em::after{width:2px;height:14px}
+.mnp-fi.on .mnp-fq em::after{opacity:0}
+.mnp-fa{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.mnp-fa>div{overflow:hidden}
+.mnp-fi.on .mnp-fa{grid-template-rows:1fr}
+.mnp-fa p{padding:0 18px 18px 48px;font-size:14.5px;line-height:1.6;color:#555}
+
+.mnp-badge{position:absolute;left:14px;bottom:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.12);font-family:var(--mnp-font,inherit);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#21301D;pointer-events:none}
+.mnp-badge i{font-style:normal;color:#B65F36;letter-spacing:1px}
+
+.mnp-bar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9990;display:none;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #eee3d4;border-radius:22px;box-shadow:0 10px 36px rgba(0,0,0,.24);transform:translateY(150%);transition:transform .35s ease}
+.mnp-bar.on{transform:none}
+.mnp-bar img{flex:none;width:52px;height:52px;object-fit:cover;border-radius:12px;background:var(--mnp-cream)}
+.mnp-bar-i{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.mnp-bar-i strong{font-size:13px;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#0a0a0a}
+.mnp-bar-i span{font-size:16px;font-weight:800;color:#0a0a0a}
+.mnp-bar-i em{font-style:normal;font-size:13px;font-weight:700;color:var(--mnp-orange)}
+.mnp-bar-s{flex:none;max-width:84px;height:46px;padding:0 8px;border:1px solid #ddd;border-radius:999px;background:#fff;font-family:inherit;font-size:14px;color:#0a0a0a}
+.mnp-bar-b{flex:none;height:46px;padding:0 20px;border:0;border-radius:999px;background:var(--mnp-orange);color:#fff;font-family:inherit;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}
+.mnp-bar-b:active{filter:brightness(.92)}
+
+@media (max-width:900px){
+  .mnp-tick span{font-size:11px;letter-spacing:2px;margin-right:26px}
+  .mnp-best{grid-template-columns:auto 1fr;grid-template-areas:"ic lb" "ic pr" "ic sb";padding:16px 18px;row-gap:2px;border-radius:20px}
+  .mnp-best-ic{width:46px;height:46px}
+  .mnp-best-pr{font-size:2rem}
+  .mnp-cuo{padding:13px 18px}
+  .mnp-trust{gap:8px}
+  .mnp-tc{padding:14px 6px}
+  .mnp-tc strong{font-size:14px}
+  .mnp-tc span{font-size:12px}
+  .mnp-bar{display:flex}
+  body.mnp-has-bar{padding-bottom:92px}
+}
+@media (prefers-reduced-motion:reduce){
+  .mnp-tick-track,.mnp-rev-track{animation:none}
+  .mnp-rev{overflow-x:auto;-webkit-mask-image:none;mask-image:none}
+  .mnp-bar,.mnp-fa{transition:none}
+}
+`);
+      if(CFG.fuente) document.documentElement.style.setProperty("--mnp-font",CFG.fuente);
+
+      /* ---------- Elementos de la página ---------- */
+      var h1=null,hs=document.querySelectorAll("h1");
+      for(var i=0;i<hs.length;i++){
+        if(!hs[i].closest("header,nav,footer")&&hs[i].textContent.trim()){h1=hs[i];break;}
+      }
+      if(h1) h1.classList.add("mnp-title");
+
+      var priceEl=null,pe=document.querySelectorAll(".js-price-display");
+      for(var j=0;j<pe.length;j++){
+        if(!pe[j].closest(".js-item-product,.item-product,.js-product-related,[data-store^='product-item']")){priceEl=pe[j];break;}
+      }
+      if(priceEl){
+        priceEl.classList.add("mnp-price");
+        priceEl.insertAdjacentHTML("beforebegin",'<span class="mnp-lbl">Precio</span>');
+      }
+
+      var nombre=h1?h1.textContent.trim():document.title;
+      var ogm=document.querySelector('meta[property="og:image"]');
+      var imgSrc=ogm?ogm.getAttribute("content"):"";
+
+      function readPrice(){
+        if(priceEl){
+          var c=priceEl.getAttribute("content");
+          if(c&&parse(c)) return parse(c);
+          var d=priceEl.getAttribute("data-product-price");
+          if(d&&parseFloat(d)) return parseFloat(d)/100;
+          var tx=parse(priceEl.textContent);
+          if(tx) return tx;
+        }
+        var m=document.querySelector('meta[property="product:price:amount"]');
+        return m?parse(m.getAttribute("content")):0;
+      }
+
+      /* ---------- Cinta de beneficios ---------- */
+      var items=['10% OFF <b>TRANSFERENCIA</b>','<b>'+CFG.cuotas+' CUOTAS</b> SIN INTERÉS','ENVÍOS A TODO EL <b>PAÍS</b>','HECHO A <b>MANO</b>'];
+      var tk="";
+      for(var r=0;r<2;r++) items.forEach(function(x){tk+='<span>✦ '+x+'</span>';});
+      var tick=document.createElement("div");
+      tick.className="mnp-tick";
+      tick.setAttribute("aria-hidden","true");
+      tick.innerHTML='<div class="mnp-tick-track">'+tk+tk+'</div>';
+      var hdr=document.querySelector("header, #header, .js-head-main");
+      if(hdr&&hdr.parentNode) hdr.insertAdjacentElement("afterend",tick);
+      else document.body.insertBefore(tick,document.body.firstChild);
+
+      /* ---------- Tarjetas de precio ---------- */
+      var pay=document.createElement("div");
+      pay.className="mnp-pay";
+      pay.innerHTML=
+        '<div class="mnp-best">'+
+          '<span class="mnp-best-ic">'+ICO.card+'</span>'+
+          '<span class="mnp-best-lb">Mejor precio</span>'+
+          '<span class="mnp-best-sb">Por transferencia · ahorrás <b data-s></b></span>'+
+          '<strong class="mnp-best-pr" data-t></strong>'+
+        '</div>'+
+        '<div class="mnp-cuo">'+ICO.card+'<span>'+CFG.cuotas+' cuotas sin interés</span><strong data-c></strong></div>';
+      form.insertAdjacentElement("beforebegin",pay);
+
+      /* ---------- Bloque debajo del formulario ---------- */
+      var after=document.createElement("div");
+      after.className="mnp-after";
+
+      var revHTML="";
+      RESENIAS.forEach(function(rv){
+        var n=Math.max(1,Math.min(5,rv.estrellas||5));
+        var c=document.createElement("div");c.className="mnp-rc";
+        var s=document.createElement("i");s.textContent="★★★★★".slice(0,n);
+        var p=document.createElement("p");p.textContent=rv.texto||"";
+        var b=document.createElement("b");b.textContent=rv.nombre||"";
+        c.appendChild(s);c.appendChild(p);c.appendChild(b);
+        revHTML+=c.outerHTML;
+      });
+
+      // Logos de medios de pago (CDN de Tiendanube)
+      var LOGO_BASE="https://d26lpennugtm8s.cloudfront.net/assets/common/img/logos/payment/new_logos_payment/";
+      var LOGOS=[["visa@2x.png","visa"],["mastercard@2x.png","mastercard"],["amex@2x.png","amex"],["ar/tarjeta-naranja@2x.png","tarjeta naranja"],["nativa@2x.png","nativa"],["ar/cabal@2x.png","cabal"],["mercadopago@2x.png","mercadopago"],["maestro@2x.png","maestro"]];
+      var logosHTML=LOGOS.map(function(l){
+        return '<img src="'+LOGO_BASE+l[0]+'" alt="'+l[1]+'" loading="lazy" onerror="this.remove()">';
+      }).join("");
+
+      after.innerHTML=
+        '<div class="mnp-ship"><span class="mnp-ship-ic">'+ICO.bolt+'</span><p>Despachamos tu pedido en <b>'+CFG.despacho+'</b></p></div>'+
+        '<div class="mnp-rate"><i aria-hidden="true">★★★★★</i><b>5,0</b><span>· Clientes verificados</span></div>'+
+        '<div class="mnp-rev" aria-label="Reseñas de clientes"><div class="mnp-rev-track">'+revHTML+revHTML+'</div></div>'+
+        '<div class="mnp-pays" aria-label="Medios de pago">'+logosHTML+'</div>'+
+        '<div class="mnp-trust">'+
+          '<div class="mnp-tc">'+ICO.back+'<strong>Cambios y devoluciones</strong><span>Producto sin uso y en perfecto estado</span></div>'+
+          '<div class="mnp-tc">'+ICO.chat+'<strong>Atención personalizada</strong><span>Te respondemos por Instagram</span></div>'+
+          '<div class="mnp-tc">'+ICO.truck+'<strong>Envíos a todo el país</strong><span>Rápidos y seguros</span></div>'+
+        '</div>'+
+        '<p class="mnp-help">¿Dudas con este producto? <a href="'+CFG.ig+'" target="_blank" rel="noopener">Escribinos por Instagram</a></p>'+
+        '<div class="mnp-faq">'+
+          faqItem(ICO.shield,"¿Qué pasa si tengo un problema con mi compra?","Escribinos por Instagram y lo resolvemos lo antes posible. Estamos para ayudarte antes y después de tu compra.")+
+          faqItem(ICO.back,"¿Puedo cambiar o devolver el producto?","Sí. Podés pedir el cambio si el producto está sin uso y en perfecto estado. Escribinos por Instagram y te indicamos los pasos.")+
+          faqItem(ICO.truck,"¿Cómo sé dónde está mi pedido?","Una vez despachado, te llega el código de seguimiento para que sigas tu envío.")+
+        '</div>';
+      form.insertAdjacentElement("afterend",after);
+
+      function faqItem(ico,q,a){
+        return '<div class="mnp-fi"><button class="mnp-fq" type="button" aria-expanded="false">'+ico+'<span>'+q+'</span><em></em></button><div class="mnp-fa"><div><p>'+a+'</p></div></div></div>';
+      }
+
+      // Acordeón: una abierta a la vez
+      var fis=after.querySelectorAll(".mnp-fi");
+      fis.forEach(function(fi){
+        fi.querySelector(".mnp-fq").addEventListener("click",function(){
+          var was=fi.classList.contains("on");
+          fis.forEach(function(o){o.classList.remove("on");o.querySelector(".mnp-fq").setAttribute("aria-expanded","false");});
+          if(!was){fi.classList.add("on");fi.querySelector(".mnp-fq").setAttribute("aria-expanded","true");}
+        });
+      });
+
+      /* ---------- Sello sobre la foto ---------- */
+      var g=document.querySelector(".js-product-slider-container, .js-swiper-product, .product-image-container, .js-product-gallery, [data-store='product-image']");
+      if(g){
+        if(getComputedStyle(g).position==="static") g.style.position="relative";
+        var bd=document.createElement("span");
+        bd.className="mnp-badge";
+        bd.innerHTML='<i>★★★★★</i> Hecho a mano';
+        g.appendChild(bd);
+      }
+
+      /* ---------- Barra fija (celular) ---------- */
+      var bar=document.createElement("div");
+      bar.className="mnp-bar";
+      bar.innerHTML=(imgSrc?'<img alt="" src="">':'')+
+        '<div class="mnp-bar-i"><strong></strong><span data-bp></span><em data-bt></em></div>'+
+        '<button type="button" class="mnp-bar-b">Comprar</button>';
+      if(imgSrc) bar.querySelector("img").setAttribute("src",imgSrc);
+      bar.querySelector("strong").textContent=nombre;
+      document.body.appendChild(bar);
+
+      var barBtn=bar.querySelector(".mnp-bar-b");
+      function realBtn(){return form.querySelector(".js-addtocart, .js-prod-submit-form, input[type=submit], button[type=submit]");}
+
+      barBtn.addEventListener("click",function(){
+        var b=realBtn();
+        if(b&&!b.disabled) b.click();
+        else form.scrollIntoView({behavior:"smooth",block:"center"});
+      });
+
+      // Selector de talle/variante espejo (solo si hay un único selector)
+      var sels=form.querySelectorAll("select");
+      if(sels.length===1){
+        var real=sels[0];
+        var mir=document.createElement("select");
+        mir.className="mnp-bar-s";
+        mir.setAttribute("aria-label","Variante");
+        for(var o=0;o<real.options.length;o++){
+          var op=document.createElement("option");
+          op.value=real.options[o].value;
+          op.textContent=real.options[o].text;
+          op.disabled=real.options[o].disabled;
+          mir.appendChild(op);
+        }
+        mir.value=real.value;
+        mir.addEventListener("change",function(){
+          real.value=mir.value;
+          real.dispatchEvent(new Event("change",{bubbles:true}));
+        });
+        real.addEventListener("change",function(){mir.value=real.value;});
+        bar.insertBefore(mir,barBtn);
+      }
+
+      // Aparece cuando el botón original ya quedó arriba
+      var target=realBtn()||form;
+      function toggleBar(on){
+        bar.classList.toggle("on",on);
+        document.body.classList.toggle("mnp-has-bar",on);
+      }
+      if("IntersectionObserver" in window){
+        new IntersectionObserver(function(es){
+          var e=es[0];
+          toggleBar(!e.isIntersecting&&e.boundingClientRect.top<0);
+        },{threshold:0}).observe(target);
+      }
+
+      /* ---------- Textos de transferencia repetidos del tema ---------- */
+      function hideDup(){
+        var root=form;
+        while(root.parentElement&&h1&&!root.contains(h1)) root=root.parentElement;
+        var els=root.querySelectorAll("div,p,span,li");
+        for(var k=0;k<els.length;k++){
+          var el=els[k];
+          if(isMine(el)||el.classList.contains("mnp-hide")) continue;
+          if(el.closest("[role=dialog],.modal,.js-modal,[class*=modal],.user-content,[class*=description],header,footer,nav")) continue;
+          if(el.contains(form)||(h1&&el.contains(h1))||(priceEl&&el.contains(priceEl))) continue;
+          var own="";
+          for(var q=0;q<el.childNodes.length;q++){if(el.childNodes[q].nodeType===3) own+=el.childNodes[q].nodeValue;}
+          if(/transferencia/i.test(own)) el.classList.add("mnp-hide");
+        }
+      }
+
+      /* ---------- Actualizar precios ---------- */
+      function set(sel,txt){var n=pay.querySelector(sel);if(n)n.textContent=txt;}
+      function update(){
+        var p=readPrice();
+        pay.style.display=p>0?"":"none";
+        if(p<=0)return;
+        var t=p*(1-CFG.transf/100);
+        set("[data-t]",fmt(t));
+        set("[data-s]",fmt(p-t));
+        set("[data-c]",fmt(p/CFG.cuotas));
+        bar.querySelector("[data-bp]").textContent=fmt(p);
+        bar.querySelector("[data-bt]").textContent=fmt(t)+" transf.";
+        hideDup();
+      }
+      update();
+      setTimeout(update,600);
+      setTimeout(update,1600);
+      if(priceEl&&"MutationObserver" in window){
+        new MutationObserver(update).observe(priceEl,{childList:true,characterData:true,subtree:true,attributes:true});
+      }
+
+      return true;
+    }
+
+    if(!start()){
+      var tries=0,w=setInterval(function(){
+        if(start()||++tries>30) clearInterval(w);
+      },300);
+    }
+  }
+
   /* ---------- Arranque ---------- */
   ready(function(){
     addFont();
-    categorias();
-    instagram();
-    tienda();
-    local();
-    faq();
-    resenias();
+    if(isHome){
+      categorias();
+      instagram();
+      tienda();
+      local();
+      faq();
+      resenias();
+    }
+    if(isProduct){
+      producto();
+    }
   });
 })();
