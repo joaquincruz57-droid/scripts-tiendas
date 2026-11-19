@@ -1153,7 +1153,6 @@
   .mnp-tc span{font-size:12px}
   .mnp-bar{display:flex}
   body.mnp-has-bar{padding-bottom:92px}
-  body.mnp-has-bar .mnp-wa{bottom:calc(100px + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:reduce){
   .mnp-rev-track,.mnp-buy,.mnp-bar-b{animation:none}
@@ -1336,7 +1335,7 @@
             if(el.contains(form)||el.contains(pay)||(h1&&el.contains(h1))) continue;
             if(el===priceEl||el.contains(priceEl)||priceEl.contains(el)) continue;
             if(label&&(el===label||el.contains(label)||label.contains(el))) continue;
-            if(el.closest("[role=dialog],.modal,.js-modal,[class*=modal],header,footer,nav")) continue;
+            if(el.closest("[role=dialog],.modal,.js-modal,header,footer,nav")) continue;
             if(!(priceEl.compareDocumentPosition(el)&4)) continue;
             if(!(el.compareDocumentPosition(pay)&4)) continue;
             el.classList.add("mnp-hide");
@@ -1347,7 +1346,7 @@
         for(var k=0;k<els.length;k++){
           var e2=els[k];
           if(isMine(e2)||e2.classList.contains("mnp-hide")) continue;
-          if(e2.closest("[role=dialog],.modal,.js-modal,[class*=modal],.user-content,[class*=description],header,footer,nav")) continue;
+          if(e2.closest("[role=dialog],.modal,.js-modal,.user-content,header,footer,nav")) continue;
           if(e2.contains(form)||(h1&&e2.contains(h1))||(priceEl&&e2.contains(priceEl))||e2.contains(pay)) continue;
           var own="";
           for(var q=0;q<e2.childNodes.length;q++){if(e2.childNodes[q].nodeType===3) own+=e2.childNodes[q].nodeValue;}
@@ -1401,6 +1400,16 @@
       update();
       setTimeout(update,600);
       setTimeout(update,1600);
+      var rootEl=form;
+      while(rootEl.parentElement&&h1&&!rootEl.contains(h1)) rootEl=rootEl.parentElement;
+      if("MutationObserver" in window){
+        var sched=false;
+        new MutationObserver(function(){
+          if(sched)return;
+          sched=true;
+          setTimeout(function(){sched=false;hideDup();},80);
+        }).observe(rootEl,{childList:true,subtree:true,characterData:true});
+      }
       if(priceEl&&"MutationObserver" in window){
         new MutationObserver(update).observe(priceEl,{childList:true,characterData:true,subtree:true,attributes:true});
       }
