@@ -1139,9 +1139,6 @@
 .mnp-buy:hover{transform:translateY(-2px);filter:brightness(1.08)}
 .mnp-buy:active{transform:scale(.98)}
 .mnp-buy:disabled,.mnp-buy.disabled{animation:none;filter:grayscale(.35);opacity:.75;cursor:not-allowed}
-.mnp-wa{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:9980;width:58px;height:58px;display:grid;place-items:center;border-radius:50%;background:#25D366;color:#fff;box-shadow:0 8px 22px rgba(0,0,0,.25);transition:bottom .35s ease,transform .2s ease}
-.mnp-wa:hover{transform:scale(1.07)}
-.mnp-wa svg{width:30px;height:30px}
 @media (max-width:900px){
   .mnp-best{grid-template-columns:auto 1fr;grid-template-areas:"ic lb" "ic pr" "ic sb";padding:16px 18px;row-gap:2px;border-radius:20px}
   .mnp-best-ic{width:46px;height:46px}
@@ -1373,15 +1370,6 @@
       styleBuy();
       setInterval(styleBuy,700);
 
-      /* ---------- Botón flotante de WhatsApp ---------- */
-      var wa=document.createElement("a");
-      wa.className="mnp-wa";
-      wa.href=WA;
-      wa.target="_blank";
-      wa.rel="noopener";
-      wa.setAttribute("aria-label","Escribinos por WhatsApp");
-      wa.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-5.5A8 8 0 1 1 21 12z"/><g transform="translate(6.6 6.6) scale(.45)"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke-width="2.6"/></g></svg>';
-      document.body.appendChild(wa);
 
       /* ---------- Actualizar precios ---------- */
       function set(sel,txt){var n=pay.querySelector(sel);if(n)n.textContent=txt;}
