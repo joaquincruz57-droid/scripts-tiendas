@@ -881,6 +881,604 @@
 })();
 
 
+/* ====== AYUDANTES COMPARTIDOS (WhatsApp, animaciones, ubicación) ====== */
+(function () {
+  if (window.__sbHelper) return;
+  window.__sbHelper = true;
+
+  /* ---------- WhatsApp de la tienda ----------
+     Poné acá tu número con código de país, sin + ni espacios. Ej: '5493885551234'
+     Si lo dejás vacío, el script intenta tomarlo solo del botón verde de WhatsApp que ya tiene tu tienda. */
+  var NUMERO = '';
+
+  function numero() {
+    if (NUMERO) return String(NUMERO).replace(/\D/g, '');
+    var as = document.querySelectorAll('a[href*="wa.me/"],a[href*="api.whatsapp.com/send"],a[href*="web.whatsapp.com/send"],a[href*="whatsapp://send"]');
+    for (var i = 0; i < as.length; i++) {
+      if (as[i].hasAttribute('data-sbwa')) continue;
+      var h = as[i].getAttribute('href') || '';
+      var m = h.match(/wa\.me\/(\d+)/) || h.match(/phone=(\d+)/);
+      if (m) return m[1];
+    }
+    return '';
+  }
+  window.__sbWA = function (msg) {
+    var n = numero();
+    return n ? 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg) : '/contacto/';
+  };
+  function refrescar() {
+    [].forEach.call(document.querySelectorAll('[data-sbwa]'), function (a) {
+      a.setAttribute('href', window.__sbWA(a.getAttribute('data-sbwa')));
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('[data-sbwa]');
+    if (a) a.setAttribute('href', window.__sbWA(a.getAttribute('data-sbwa')));
+  }, true);
+  var n0 = 0, t0 = setInterval(function () { refrescar(); if (++n0 > 40) clearInterval(t0); }, 500);
+
+  /* ---------- Fuentes + animación de entrada compartida ---------- */
+  function iniciar() {
+    if (!document.querySelector('link[href*="family=Anton"]') || !document.querySelector('link[href*="family=Poppins"]')) {
+      var f = document.createElement('link');
+      f.rel = 'stylesheet';
+      f.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700&display=swap';
+      document.head.appendChild(f);
+    }
+    var st = document.createElement('style');
+    st.id = 'sbHelperStyles';
+    st.textContent =
+      '.sb-rv{opacity:0;transform:translateY(40px);transition:opacity .9s ease var(--d,0s),transform .9s cubic-bezier(.2,.9,.2,1) var(--d,0s)}' +
+      '.sb-rv.l{transform:translateX(-60px)}.sb-rv.r{transform:translateX(60px)}' +
+      '@media(max-width:767px){.sb-rv.l,.sb-rv.r{transform:translateY(40px)}}' +
+      '.sb-rv.vis{opacity:1;transform:none}' +
+      '@media(prefers-reduced-motion:reduce){.sb-rv{opacity:1!important;transform:none!important;transition:none!important}}';
+    document.head.appendChild(st);
+    refrescar();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+
+  window.__sbReveal = function (root, onShow) {
+    var red = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    [].forEach.call(root.querySelectorAll('.sb-rv'), function (el) {
+      function show() { el.classList.add('vis'); if (onShow) onShow(el); }
+      if (red || !('IntersectionObserver' in window)) { show(); return; }
+      var io = new IntersectionObserver(function (es) {
+        if (es[es.length - 1].isIntersecting) { io.disconnect(); show(); }
+      }, { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
+      io.observe(el);
+    });
+  };
+
+  window.__sbPlace = function (sec, prevId) {
+    function u() {
+      var p = document.getElementById(prevId);
+      if (p && p.nextElementSibling !== sec) p.insertAdjacentElement('afterend', sec);
+    }
+    function go() { u(); var n = 0, t = setInterval(function () { u(); if (++n > 40) clearInterval(t); }, 300); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  };
+})();
+
+
+/* ====== VENTA POR MAYOR · Simone Shoes ======
+   Va justo debajo de la sección de redes. Solo en el inicio. */
+(function () {
+  if (window.__sbMayor || document.getElementById('sbMayorista')) return;
+  window.__sbMayor = true;
+
+  var path = location.pathname.replace(/\/+$/, '');
+  var esInicio = path === '' || /^\/[a-z]{2}(-[a-z]{2})?$/i.test(path);
+  if (!esInicio) return;
+
+  /* ---------- Textos (editables) ---------- */
+  var MENSAJE = 'Hola! Quiero consultar por la venta por mayor de Simone Shoes.';
+  var PERKS = [
+    'Los mejores precios mayoristas',
+    'Calidad que tus clientes van a volver a buscar',
+    'Te asesoramos para que arranques a vender'
+  ];
+  var PASOS = ['Escribinos por WhatsApp', 'Te pasamos precios y catálogo', 'Armamos tu pedido'];
+
+  var R2 = 'https://pub-206117a07bdc4f2995a7200b0bd57f09.r2.dev/';
+  var IMG = {
+    nike: R2 + 'Zapatillas%20Nike%20grises%20aisladas.png',
+    vansN: R2 + 'Zapatillas%20Vans%20negras%20sobrepuestas.png',
+    vansM: R2 + 'Zapatillas%20Vans%20marro%CC%81n%20y%20beige.png'
+  };
+
+  var css = `
+.sbm{--n:#2f4058;--blue:#0b5fe0;--sky:#b5d8f7;position:relative;overflow:hidden;background:linear-gradient(180deg,#f5f9fd 0%,#fff 100%);padding:66px 0;font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.sbm *{box-sizing:border-box;margin:0;padding:0}
+.sbm-wrap{max-width:1200px;margin:0 auto;padding:0 4.4%}
+.sbm-card{
+  position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:1.08fr .92fr;gap:20px;align-items:center;
+  border-radius:30px;padding:56px;color:#fff;
+  background:radial-gradient(80% 120% at 100% 0%,#3f5878 0%,transparent 58%),linear-gradient(135deg,#2f4058 0%,#1b2839 100%);
+  box-shadow:0 28px 58px rgba(47,64,88,.34);
+}
+.sbm-card::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(rgba(181,216,247,.16) 1.2px,transparent 1.3px);background-size:22px 22px;-webkit-mask-image:linear-gradient(90deg,#000,transparent 70%);mask-image:linear-gradient(90deg,#000,transparent 70%)}
+.sbm-badge{display:inline-flex;align-items:center;gap:.6rem;padding:.5rem 1rem;border-radius:999px;background:rgba(181,216,247,.14);border:1px solid rgba(181,216,247,.42);font-size:.66rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--sky)}
+.sbm-pd{position:relative;width:.55rem;height:.55rem;border-radius:50%;background:var(--sky)}
+.sbm-pd::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:sbmPl 1.7s ease-out infinite}
+@keyframes sbmPl{0%{transform:scale(1);opacity:.7}to{transform:scale(3.2);opacity:0}}
+.sbm-title{margin:18px 0 14px;font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;font-size:clamp(2.3rem,4.8vw,3.7rem);line-height:1.02;letter-spacing:.01em;text-transform:uppercase}
+.sbm-title em{font-style:normal;color:var(--sky)}
+.sbm-sub{max-width:31rem;font-size:1rem;line-height:1.6;color:rgba(255,255,255,.8)}
+.sbm-list{list-style:none;margin:24px 0 28px;display:grid;gap:12px}
+.sbm-list li{display:flex;align-items:center;gap:12px;font-size:.96rem;font-weight:500}
+.sbm-list svg{flex:none;width:26px;height:26px;padding:6px;border-radius:50%;background:var(--sky);stroke:var(--n);fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.sbm-cta{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:14px;padding:13px 30px 13px 14px;border-radius:999px;background:#25d366;color:#06301a!important;font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1;text-decoration:none!important;box-shadow:0 14px 28px rgba(37,211,102,.35);transition:transform .25s,box-shadow .25s,gap .25s}
+.sbm-cta::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);transition:left .7s}
+.sbm-cta:hover{transform:translateY(-3px);box-shadow:0 20px 34px rgba(37,211,102,.45);gap:18px}
+.sbm-cta:hover::before{left:130%}
+.sbm-wa{flex:none;width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#25d366}
+.sbm-wa svg{width:22px;height:22px;fill:currentColor}
+.sbm-steps{display:flex;gap:18px;margin-top:30px;padding-top:24px;border-top:1px solid rgba(181,216,247,.22)}
+.sbm-st{display:flex;align-items:center;gap:10px;font-size:.78rem;line-height:1.3;color:rgba(255,255,255,.82)}
+.sbm-st b{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(181,216,247,.16);border:1px solid rgba(181,216,247,.45);font-size:.78rem;color:var(--sky)}
+
+.sbm-vis{position:relative;height:420px}
+.sbm-glow{position:absolute;left:50%;top:50%;width:340px;height:340px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(181,216,247,.55),transparent 68%)}
+.sbm-dash{position:absolute;left:50%;top:50%;width:360px;height:360px;margin:-180px 0 0 -180px;border-radius:50%;border:2px dashed rgba(181,216,247,.42);animation:sbmSpin 40s linear infinite}
+@keyframes sbmSpin{to{transform:rotate(360deg)}}
+.sbm-sh{position:absolute;pointer-events:none}
+.sbm-sh img{display:block;width:100%;filter:drop-shadow(0 22px 22px rgba(0,0,0,.42));animation:sbmFl var(--t,6s) ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes sbmFl{0%,100%{transform:translateY(0) rotate(var(--r1,-10deg))}50%{transform:translateY(-14px) rotate(var(--r2,-6deg))}}
+.sbm-s1{width:76%;left:14%;top:0;z-index:2;--r1:-14deg;--r2:-10deg;--t:6s}
+.sbm-s2{width:54%;right:-2%;bottom:0;z-index:3;--r1:5deg;--r2:9deg;--t:5.4s;--dl:-1.5s}
+.sbm-s3{width:50%;left:-2%;bottom:6%;z-index:1;--r1:-6deg;--r2:-2deg;--t:6.6s;--dl:-3s}
+
+@media(max-width:900px){
+  .sbm-card{grid-template-columns:1fr;padding:34px 24px 26px;gap:8px}
+  .sbm-vis{height:250px;order:2}
+  .sbm-glow{width:230px;height:230px}
+  .sbm-dash{width:250px;height:250px;margin:-125px 0 0 -125px}
+}
+@media(max-width:767px){
+  .sbm{padding:40px 0}
+  .sbm-card{border-radius:24px}
+  .sbm-sub{font-size:.9rem}
+  .sbm-list{margin:18px 0 22px}
+  .sbm-list li{font-size:.88rem}
+  .sbm-cta{width:100%;justify-content:center;font-size:.72rem;padding:12px 22px 12px 12px}
+  .sbm-steps{flex-direction:column;gap:10px;margin-top:22px;padding-top:18px}
+  .sbm-st{font-size:.76rem}
+}
+@media(prefers-reduced-motion:reduce){.sbm-dash,.sbm-sh img,.sbm-pd::after{animation:none}}`;
+
+  var CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var WA = '<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
+
+  var sec = document.createElement('section');
+  sec.className = 'sbm';
+  sec.id = 'sbMayorista';
+  sec.setAttribute('aria-label', 'Venta por mayor');
+  sec.innerHTML =
+    '<div class="sbm-wrap"><div class="sbm-card sb-rv">' +
+      '<div class="sbm-info">' +
+        '<span class="sbm-badge"><i class="sbm-pd"></i>Venta por mayor</span>' +
+        '<h2 class="sbm-title">¿Querés <em>revender</em> Simone Shoes?</h2>' +
+        '<p class="sbm-sub">También vendemos por mayor. Si querés empezar a vender, te damos los mejores precios y la mejor calidad.</p>' +
+        '<ul class="sbm-list">' + PERKS.map(function (p) { return '<li>' + CHECK + p + '</li>'; }).join('') + '</ul>' +
+        '<a class="sbm-cta" href="/contacto/" data-sbwa="' + MENSAJE + '" target="_blank" rel="noopener"><span class="sbm-wa">' + WA + '</span>Quiero vender por mayor</a>' +
+        '<div class="sbm-steps">' + PASOS.map(function (p, i) { return '<div class="sbm-st"><b>' + (i + 1) + '</b><span>' + p + '</span></div>'; }).join('') + '</div>' +
+      '</div>' +
+      '<div class="sbm-vis"><i class="sbm-glow"></i><i class="sbm-dash"></i>' +
+        '<div class="sbm-sh sbm-s3"><img src="' + IMG.vansM + '" alt="" loading="lazy"></div>' +
+        '<div class="sbm-sh sbm-s1"><img src="' + IMG.nike + '" alt="Zapatillas Nike" loading="lazy"></div>' +
+        '<div class="sbm-sh sbm-s2"><img src="' + IMG.vansN + '" alt="Zapatillas Vans" loading="lazy"></div>' +
+      '</div>' +
+    '</div></div>';
+
+  var st = document.createElement('style');
+  st.id = 'sbmStyles';
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  window.__sbReveal(sec);
+  window.__sbPlace(sec, 'sbSocial');
+})();
+
+
+/* ====== CLIENTES VERIFICADOS · Simone Shoes ======
+   Reseñas de EJEMPLO. Reemplazalas por las reales en el bloque RS.
+   Se ubican debajo de la sección de venta por mayor. Solo en el inicio. */
+(function () {
+  if (window.__sbResenas || document.getElementById('sbResenas')) return;
+  window.__sbResenas = true;
+
+  var path = location.pathname.replace(/\/+$/, '');
+  var esInicio = path === '' || /^\/[a-z]{2}(-[a-z]{2})?$/i.test(path);
+  if (!esInicio) return;
+
+  /* [nombre, ciudad, producto comprado, comentario, estrellas (1 a 5)] */
+  var PUNTAJE = '4.9';
+  var RS = [
+    ['Micaela R.', 'Salta', 'Zapatillas Nike', 'Llegaron rapidísimo y son idénticas a las fotos. El talle me quedó perfecto, ya estoy mirando otro par.', 5],
+    ['Lucas G.', 'San Salvador de Jujuy', 'Zapatillas Vans', 'Excelente atención por WhatsApp, me ayudaron a elegir el talle. Súper recomendable.', 5],
+    ['Camila F.', 'Tucumán', 'Zapatillas New Balance', 'Muy cómodas y la calidad es increíble. Pagué por transferencia con el 10% OFF y el envío fue gratis.', 5],
+    ['Agustín P.', 'Palpalá', 'Zapatillas Jordan', 'Las busqué por todos lados y acá las encontré. Llegaron impecables y bien empaquetadas.', 5],
+    ['Florencia S.', 'Córdoba', 'Zapatillas Adidas', 'Todo muy fácil, desde la compra hasta que me llegó. Se nota que cuidan cada detalle.', 5],
+    ['Mateo L.', 'Orán', 'Zapatillas Nike', 'Compré en 3 cuotas sin interés y llegaron en pocos días. Muy conforme con la compra.', 5],
+    ['Sofía M.', 'Salta', 'Zapatillas Puma', 'Hermosas y livianas. Me respondieron todas las dudas al instante, de 10.', 5],
+    ['Joaquín C.', 'San Pedro de Jujuy', 'Zapatillas Vans', 'Segunda vez que compro y siempre llega todo perfecto. Ya las recomendé a mis amigos.', 5],
+    ['Valentina A.', 'Rosario', 'Zapatillas Nike', 'Me llegaron a Rosario sin costo de envío. El empaque impecable y las zapatillas hermosas.', 5],
+    ['Nicolás B.', 'Buenos Aires', 'Zapatillas New Balance', 'Dudaba de comprar online pero salió todo perfecto. Excelente calidad y muy buen precio.', 5],
+    ['Rocío V.', 'Tucumán', 'Zapatillas Adidas', 'El talle me quedó justo y el color es igual al de la foto. Muy buena atención.', 5],
+    ['Franco D.', 'Salta', 'Zapatillas Jordan', 'Atención personalizada de verdad, me asesoraron en todo momento. Las mejores.', 5],
+    ['Julieta N.', 'Mendoza', 'Zapatillas Puma', 'Compra segura y rápida. Me mantuvieron informada del envío hasta que llegó.', 5],
+    ['Tomás R.', 'Palpalá', 'Zapatillas Vans', 'Muy buena calidad por el precio que pagás. Llegaron antes de lo que esperaba.', 4]
+  ];
+
+  var css = `
+.sbr{--n:#2f4058;--blue:#0b5fe0;--sky:#b5d8f7;--line:#dce7f2;position:relative;overflow:hidden;background:#fff;padding:66px 0 70px;font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.sbr *{box-sizing:border-box;margin:0;padding:0}
+.sbr-wrap{max-width:1200px;margin:0 auto;padding:0 4.4%}
+.sbr-head{text-align:center;max-width:640px;margin:0 auto 26px}
+.sbr-tag{display:inline-flex;align-items:center;gap:.8rem;font-size:.68rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:#7b8898;margin-bottom:.8rem}
+.sbr-tag i{display:inline-block;width:2.2rem;height:2px;background:var(--sky)}
+.sbr-title{position:relative;display:inline-block;padding-bottom:16px;font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;font-size:clamp(2.1rem,4.6vw,3.3rem);line-height:1.02;letter-spacing:.01em;text-transform:uppercase;color:#16202e}
+.sbr-title em{font-style:normal;color:var(--blue)}
+.sbr-title::after{content:"";position:absolute;left:50%;bottom:0;width:0;height:4px;border-radius:4px;background:var(--blue);transform:translateX(-50%);transition:width .9s cubic-bezier(.2,.9,.2,1) .4s}
+.sbr-head.vis .sbr-title::after{width:64px}
+.sbr-sub{margin-top:12px;font-size:.95rem;line-height:1.5;color:#6b7684}
+.sbr-sum{display:flex;justify-content:center;margin:0 auto 32px}
+.sbr-score{display:inline-flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:14px;padding:12px 26px;background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 10px 24px rgba(47,64,88,.1)}
+.sbr-score b{font-weight:700;font-size:1.7rem;line-height:1;letter-spacing:-.02em;color:#16202e}
+.sbr-score .t{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#6b7684}
+.sbr-st{display:inline-flex;gap:3px;color:var(--blue)}
+.sbr-st svg{width:1rem;height:1rem;fill:currentColor}
+
+.sbr-rows{display:flex;flex-direction:column;gap:6px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+.sbr-row{overflow:hidden;padding:8px 0 16px}
+.sbr-track{display:flex;width:max-content;animation:sbrMove 95s linear infinite;will-change:transform}
+.sbr-row.rev .sbr-track{animation-direction:reverse}
+.sbr-rows:hover .sbr-track{animation-play-state:paused}
+.sbr-half{display:flex;gap:18px;padding-right:18px;flex:none}
+@keyframes sbrMove{to{transform:translate3d(-50%,0,0)}}
+
+.sbr-card{position:relative;flex:none;width:330px;display:flex;flex-direction:column;gap:12px;padding:22px 22px 18px;background:linear-gradient(180deg,#fff,#f6faff);border:1px solid var(--line);border-radius:22px;box-shadow:0 12px 28px rgba(47,64,88,.09);overflow:hidden}
+.sbr-card::before{content:"“";position:absolute;right:16px;top:-6px;font-family:Georgia,serif;font-size:5.4rem;line-height:1;color:var(--sky);opacity:.55;pointer-events:none}
+.sbr-top{display:flex;align-items:center;gap:12px}
+.sbr-av{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#d6eafc,#8fc2f0);color:var(--n);font-weight:700;font-size:1rem}
+.sbr-who{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.sbr-who strong{font-size:.92rem;font-weight:700;color:#16202e}
+.sbr-who em{font-style:normal;font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a96a5;white-space:nowrap}
+.sbr-tx{flex:1;font-size:.9rem;line-height:1.55;color:#4a5566;white-space:normal}
+.sbr-ft{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+.sbr-pr{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--n)}
+.sbr-ok{display:inline-flex;align-items:center;gap:.35rem;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);white-space:nowrap}
+.sbr-ok svg{width:1.1rem;height:1.1rem;padding:.2rem;border-radius:50%;background:var(--blue);stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+
+@media(max-width:767px){
+  .sbr{padding:42px 0 46px}
+  .sbr-head{padding:0 5%;margin-bottom:20px}
+  .sbr-tag{font-size:.6rem;letter-spacing:.24em}
+  .sbr-tag i{width:1.5rem}
+  .sbr-sub{font-size:.85rem}
+  .sbr-sum{margin-bottom:22px;padding:0 5%}
+  .sbr-score{padding:10px 18px;gap:10px}
+  .sbr-score b{font-size:1.4rem}
+  .sbr-card{width:262px;padding:18px 18px 15px;border-radius:18px;gap:10px}
+  .sbr-half{gap:12px;padding-right:12px}
+  .sbr-tx{font-size:.82rem}
+  .sbr-av{width:38px;height:38px}
+  .sbr-track{animation-duration:80s}
+}
+@media(prefers-reduced-motion:reduce){
+  .sbr-track{animation:none}
+  .sbr-row{overflow-x:auto}
+  .sbr-title::after{width:64px;transition:none}
+}`;
+
+  function estrellas(n) {
+    var s = '';
+    for (var k = 1; k <= 5; k++) s += '<svg viewBox="0 0 24 24" style="opacity:' + (k <= n ? 1 : .25) + '"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
+    return s;
+  }
+  var OK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function tarjeta(r) {
+    return '<article class="sbr-card"><div class="sbr-top"><span class="sbr-av">' + r[0].charAt(0) + '</span>' +
+      '<span class="sbr-who"><strong>' + r[0] + '</strong><em>' + r[1] + '</em></span></div>' +
+      '<span class="sbr-st">' + estrellas(r[4]) + '</span>' +
+      '<p class="sbr-tx">“' + r[3] + '”</p>' +
+      '<div class="sbr-ft"><span class="sbr-pr">' + r[2] + '</span><span class="sbr-ok">' + OK + 'Compra verificada</span></div></article>';
+  }
+  function fila(lista, rev) {
+    var set = lista.map(tarjeta).join('');
+    var half = '<div class="sbr-half">' + set + set + '</div>';
+    var half2 = '<div class="sbr-half" aria-hidden="true">' + set + set + '</div>';
+    return '<div class="sbr-row' + (rev ? ' rev' : '') + '"><div class="sbr-track">' + half + half2 + '</div></div>';
+  }
+  var mitad = Math.ceil(RS.length / 2);
+
+  var sec = document.createElement('section');
+  sec.className = 'sbr';
+  sec.id = 'sbResenas';
+  sec.setAttribute('aria-label', 'Clientes verificados');
+  sec.innerHTML =
+    '<div class="sbr-wrap">' +
+      '<div class="sbr-head sb-rv"><span class="sbr-tag"><i></i>Clientes verificados<i></i></span><br>' +
+        '<h2 class="sbr-title">Lo que dicen <em>nuestros clientes</em></h2>' +
+        '<p class="sbr-sub">Opiniones reales de compras confirmadas en Simone Shoes.</p></div>' +
+      '<div class="sbr-sum sb-rv" style="--d:.1s"><div class="sbr-score"><b>' + PUNTAJE + '</b><span class="sbr-st">' + estrellas(5) + '</span><span class="t">Compras verificadas</span></div></div>' +
+    '</div>' +
+    '<div class="sbr-rows sb-rv" style="--d:.15s">' + fila(RS.slice(0, mitad), false) + fila(RS.slice(mitad), true) + '</div>';
+
+  var st = document.createElement('style');
+  st.id = 'sbrStyles';
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  window.__sbReveal(sec);
+  window.__sbPlace(sec, 'sbMayorista');
+})();
+
+
+/* ====== PREGUNTAS FRECUENTES · Simone Shoes ======
+   Última sección del inicio. Editá, agregá o borrá preguntas en el bloque FQ. */
+(function () {
+  if (window.__sbFaq || document.getElementById('sbFaq')) return;
+  window.__sbFaq = true;
+
+  var path = location.pathname.replace(/\/+$/, '');
+  var esInicio = path === '' || /^\/[a-z]{2}(-[a-z]{2})?$/i.test(path);
+  if (!esInicio) return;
+
+  var MENSAJE = 'Hola! Tengo una consulta sobre Simone Shoes.';
+  var FQ = [
+    ['¿Hacen envíos a todo el país?', 'Sí, hacemos envíos gratis a todo el país. Una vez confirmada tu compra te avisamos con el seguimiento de tu pedido.'],
+    ['¿Cómo puedo pagar?', 'Podés pagar con tarjeta de crédito, débito o transferencia bancaria.'],
+    ['¿Tienen cuotas sin interés?', 'Sí, tenés 3 cuotas sin interés en tus compras.'],
+    ['¿Hay descuento por transferencia?', 'Sí, pagando por transferencia tenés 10% OFF sobre el precio de lista.'],
+    ['¿Cómo sé qué talle elegir?', 'Si tenés dudas con el talle, escribinos por WhatsApp y te asesoramos para que elijas el que mejor te quede.'],
+    ['¿Puedo cambiar mis zapatillas si no me quedan?', 'Escribinos y coordinamos el cambio con vos. Queremos que estés conforme con tu compra.'],
+    ['¿Venden por mayor?', 'Sí, también vendemos por mayor. Si querés empezar a vender, escribinos por WhatsApp y te pasamos precios y catálogo.'],
+    ['¿Es segura la compra?', 'Sí, tus datos están protegidos y los pagos se procesan en una plataforma segura.'],
+    ['¿Cómo los contacto?', 'Por WhatsApp o por Instagram, en @simoneshoesss. Respondemos todas tus consultas.']
+  ];
+
+  var css = `
+.sbf{--n:#2f4058;--blue:#0b5fe0;--sky:#b5d8f7;--line:#dce7f2;position:relative;overflow:hidden;background:linear-gradient(180deg,#f5f9fd,#eaf3fb);padding:66px 0 72px;font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.sbf *{box-sizing:border-box;margin:0;padding:0}
+.sbf-wrap{max-width:820px;margin:0 auto;padding:0 4.4%}
+.sbf-head{text-align:center;margin-bottom:34px}
+.sbf-tag{display:inline-flex;align-items:center;gap:.8rem;font-size:.68rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:#7b8898;margin-bottom:.8rem}
+.sbf-tag i{display:inline-block;width:2.2rem;height:2px;background:var(--sky)}
+.sbf-title{position:relative;display:inline-block;padding-bottom:16px;font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;font-size:clamp(2.1rem,4.6vw,3.3rem);line-height:1.02;letter-spacing:.01em;text-transform:uppercase;color:#16202e}
+.sbf-title em{font-style:normal;color:var(--blue)}
+.sbf-title::after{content:"";position:absolute;left:50%;bottom:0;width:0;height:4px;border-radius:4px;background:var(--blue);transform:translateX(-50%);transition:width .9s cubic-bezier(.2,.9,.2,1) .4s}
+.sbf-head.vis .sbf-title::after{width:64px}
+.sbf-sub{margin-top:12px;font-size:.95rem;line-height:1.5;color:#6b7684}
+.sbf-list{display:flex;flex-direction:column;gap:11px}
+.sbf-it{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 16px rgba(47,64,88,.06);transition:border-color .3s,box-shadow .3s}
+.sbf-it:hover{border-color:var(--sky)}
+.sbf-it[open]{border-color:var(--sky);box-shadow:0 14px 30px rgba(47,64,88,.14)}
+.sbf-it summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;font-weight:600;font-size:.92rem;line-height:1.35;letter-spacing:.02em;color:#16202e}
+.sbf-it summary::-webkit-details-marker{display:none}
+.sbf-it summary::marker{content:""}
+.sbf-pl{flex:none;width:32px;height:32px;border-radius:50%;background:var(--sky);display:grid;place-items:center;transition:transform .3s,background .3s}
+.sbf-pl svg{width:15px;height:15px;stroke:var(--n);fill:none;stroke-width:2.4;stroke-linecap:round}
+.sbf-it[open] .sbf-pl{transform:rotate(45deg);background:var(--n)}
+.sbf-it[open] .sbf-pl svg{stroke:#fff}
+.sbf-a{padding:0 22px 20px;font-size:.92rem;line-height:1.65;color:#5a6676}
+.sbf-more{margin-top:34px;text-align:center}
+.sbf-more p{font-size:.95rem;color:#6b7684;margin-bottom:16px}
+.sbf-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:15px 30px 15px 16px;border-radius:999px;background:var(--n);color:#fff!important;font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;line-height:1;text-decoration:none!important;box-shadow:0 12px 26px rgba(47,64,88,.28);transition:background .25s,color .25s,transform .25s}
+.sbf-cta:hover{background:var(--sky);color:var(--n)!important;transform:translateY(-2px)}
+.sbf-cta .w{flex:none;width:34px;height:34px;border-radius:50%;background:#25d366;display:grid;place-items:center;color:#fff}
+.sbf-cta svg{width:19px;height:19px;fill:currentColor}
+@media(max-width:767px){
+  .sbf{padding:42px 0 48px}
+  .sbf-head{margin-bottom:24px}
+  .sbf-tag{font-size:.6rem;letter-spacing:.24em}
+  .sbf-tag i{width:1.5rem}
+  .sbf-sub{font-size:.85rem}
+  .sbf-it{border-radius:15px}
+  .sbf-it summary{padding:15px 16px;font-size:.8rem}
+  .sbf-a{padding:0 16px 16px;font-size:.86rem}
+  .sbf-cta{width:100%;font-size:.7rem}
+}
+@media(prefers-reduced-motion:reduce){.sbf-title::after{width:64px;transition:none}}`;
+
+  var PL = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+  var WA = '<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>';
+
+  var sec = document.createElement('section');
+  sec.className = 'sbf';
+  sec.id = 'sbFaq';
+  sec.setAttribute('aria-label', 'Preguntas frecuentes');
+  sec.innerHTML =
+    '<div class="sbf-wrap">' +
+      '<div class="sbf-head sb-rv"><span class="sbf-tag"><i></i>Preguntas frecuentes<i></i></span><br>' +
+        '<h2 class="sbf-title">Resolvé tus <em>dudas</em></h2>' +
+        '<p class="sbf-sub">Todo lo que necesitás saber antes de comprar.</p></div>' +
+      '<div class="sbf-list">' + FQ.map(function (f, i) {
+        return '<details class="sbf-it sb-rv" style="--d:' + (Math.min(i, 4) * 0.06).toFixed(2) + 's"><summary>' + f[0] +
+          '<span class="sbf-pl">' + PL + '</span></summary><div class="sbf-a">' + f[1] + '</div></details>';
+      }).join('') + '</div>' +
+      '<div class="sbf-more sb-rv"><p>¿No encontraste lo que buscabas?</p>' +
+        '<a class="sbf-cta" href="/contacto/" data-sbwa="' + MENSAJE + '" target="_blank" rel="noopener"><span class="w">' + WA + '</span>Escribinos por WhatsApp</a></div>' +
+    '</div>';
+
+  var st = document.createElement('style');
+  st.id = 'sbfStyles';
+  st.textContent = css;
+  document.head.appendChild(st);
+
+  /* Una sola pregunta abierta a la vez */
+  var lista = sec.querySelector('.sbf-list');
+  [].forEach.call(lista.querySelectorAll('details'), function (d) {
+    d.addEventListener('toggle', function () {
+      if (d.open) [].forEach.call(lista.querySelectorAll('details[open]'), function (o) { if (o !== d) o.open = false; });
+    });
+  });
+
+  window.__sbReveal(sec);
+  window.__sbPlace(sec, 'sbResenas');
+})();
+
+
+/* ====== BURBUJA DE COMPRAS RECIENTES · Simone Shoes (todas las páginas) ======
+   Compras de EJEMPLO para que veas cómo queda. Cambialas por tus ventas reales en el bloque COMPRAS.
+   ag(minutos) significa "hace X minutos". También podés poner una fecha real:
+   fecha: "2026-11-22T15:30:00-03:00". Las compras de más de 30 días no se muestran. */
+(function () {
+  if (window.__sbBubble) return;
+  window.__sbBubble = true;
+
+  var TIENDA = 'Simone Shoes', MAX_DIAS = 30, PRIMERA = 6000, VISIBLE = 6500, ESPERA_MIN = 9000, ESPERA_MAX = 15000;
+  var LOGO = 'https://pub-206117a07bdc4f2995a7200b0bd57f09.r2.dev/Logo%20de%20Simone%20Shoes%20con%20letras%20curvadas.png';
+
+  try { if (sessionStorage.getItem('sbpOff') === '1') return; } catch (e) {}
+
+  function ag(m) { return new Date(Date.now() - m * 6e4).toISOString(); }
+  var COMPRAS = [
+    { nombre: 'Valentina', ciudad: 'Salta',                 producto: 'Zapatillas Nike',        precio: 129900, img: '', url: '', fecha: ag(8) },
+    { nombre: 'Lucas',     ciudad: 'San Salvador de Jujuy', producto: 'Zapatillas Vans',        precio: 109900, img: '', url: '', fecha: ag(27) },
+    { nombre: 'Camila',    ciudad: 'Tucumán',               producto: 'Zapatillas New Balance', precio: 139900, img: '', url: '', fecha: ag(55) },
+    { nombre: 'Agustín',   ciudad: 'Palpalá',               producto: 'Zapatillas Jordan',      precio: 149900, img: '', url: '', fecha: ag(130) },
+    { nombre: 'Florencia', ciudad: 'Córdoba',               producto: 'Zapatillas Adidas',      precio: 119900, img: '', url: '', fecha: ag(260) },
+    { nombre: 'Mateo',     ciudad: 'Orán',                  producto: 'Zapatillas Puma',        precio: 99900,  img: '', url: '', fecha: ag(1500) }
+  ];
+
+  var ahora = Date.now();
+  var LS = COMPRAS.filter(function (c) {
+    if (!c.nombre || !c.ciudad || !c.producto || !c.fecha) return false;
+    var t = new Date(c.fecha).getTime();
+    return t && t <= ahora && ahora - t <= MAX_DIAS * 864e5;
+  });
+  if (!LS.length) return;
+
+  var css = `
+.sbp{--n:#2f4058;--blue:#0b5fe0;--sky:#b5d8f7;--line:#dce7f2;position:fixed;left:16px;bottom:16px;z-index:90;width:max-content;max-width:min(400px,calc(100vw - 32px));background:#fff;border:1px solid var(--line);border-radius:1.3rem;overflow:hidden;box-shadow:0 18px 44px rgba(47,64,88,.28),0 2px 8px rgba(0,0,0,.06);opacity:0;transform:translateY(28px) scale(.97);pointer-events:none;transition:opacity .5s,transform .5s cubic-bezier(.2,.9,.2,1);font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.sbp *{box-sizing:border-box;margin:0;padding:0}
+.sbp.on{opacity:1;transform:none;pointer-events:auto}
+.sbp-link{display:flex;align-items:center;gap:.9rem;padding:.8rem 2.6rem .95rem .8rem;color:#16202e!important;text-decoration:none!important}
+.sbp-img{flex:none;width:4.4rem;height:4.4rem;border-radius:1rem;overflow:hidden;background:var(--n);display:grid;place-items:center}
+.sbp-img img{width:100%;height:100%;object-fit:cover;display:block}
+.sbp-img img.lg{object-fit:contain;padding:.5rem}
+.sbp-body{display:flex;flex-direction:column;gap:.18rem;min-width:0}
+.sbp-who{font-size:.76rem;line-height:1.3;color:#5a6676;font-weight:500}
+.sbp-who b{font-weight:700;color:#16202e}
+.sbp-row{display:flex;align-items:baseline;justify-content:space-between;gap:1rem}
+.sbp-prod{font-size:.86rem;font-weight:700;line-height:1.15;letter-spacing:.02em;text-transform:uppercase;color:#16202e}
+.sbp-price{font-size:.9rem;font-weight:700;line-height:1.15;color:var(--blue);white-space:nowrap}
+.sbp-time{display:flex;align-items:center;gap:.45rem;margin-top:.15rem;font-size:.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8a96a5}
+.sbp-time i{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:var(--sky)}
+.sbp-x{position:absolute;top:.55rem;right:.6rem;width:1.7rem;height:1.7rem;border:0;border-radius:50%;background:transparent;font-size:1.25rem;line-height:1;color:#8a96a5;cursor:pointer;display:grid;place-items:center;transition:background .2s,color .2s}
+.sbp-x:hover{background:#eaf3fb;color:#16202e}
+.sbp-bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:linear-gradient(90deg,var(--sky),var(--blue));transform-origin:left;transform:scaleX(0)}
+.sbp.on .sbp-bar{animation:sbpB var(--t,6.5s) linear forwards}
+.sbp:hover .sbp-bar{animation-play-state:paused}
+@keyframes sbpB{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media(max-width:600px){
+  .sbp{left:10px;bottom:10px;border-radius:1.1rem;max-width:calc(100vw - 86px)}
+  .sbp-link{gap:.7rem;padding:.6rem 2.2rem .75rem .6rem}
+  .sbp-img{width:3.4rem;height:3.4rem;border-radius:.8rem}
+  .sbp-who{font-size:.66rem}
+  .sbp-prod,.sbp-price{font-size:.72rem}
+  .sbp-row{gap:.6rem}
+  .sbp-time{font-size:.52rem;letter-spacing:.08em}
+  .sbp-x{top:.35rem;right:.4rem}
+}
+@media(prefers-reduced-motion:reduce){.sbp{transition:opacity .2s;transform:none}.sbp.on .sbp-bar{animation:none}}`;
+
+  function fm(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
+  function hace(f) {
+    var m = Math.max(1, Math.round((Date.now() - new Date(f).getTime()) / 6e4));
+    if (m < 60) return 'hace ' + m + ' min';
+    var h = Math.round(m / 60);
+    if (h < 24) return 'hace ' + h + (h === 1 ? ' hora' : ' horas');
+    var d = Math.round(h / 24);
+    return 'hace ' + d + (d === 1 ? ' día' : ' días');
+  }
+  /* Busca el producto en la página (por nombre) para tomar su foto y su link */
+  function buscar(nombre) {
+    var its = document.querySelectorAll('.js-item-product'), k = nombre.trim().toLowerCase();
+    for (var i = 0; i < its.length; i++) {
+      var e = its[i].querySelector('.item-name');
+      if (e && e.textContent.trim().toLowerCase() === k) {
+        var im = its[i].querySelector('img'), a = its[i].querySelector('a[href]'), src = '';
+        if (im) {
+          src = im.getAttribute('data-src') || '';
+          if (!src) { var ss = im.getAttribute('data-srcset') || im.getAttribute('srcset') || ''; if (ss) src = ss.split(',')[0].trim().split(' ')[0]; }
+          if (!src || src.indexOf('data:') === 0) src = im.currentSrc || im.src || '';
+        }
+        return { img: src, url: a ? a.getAttribute('href') : '' };
+      }
+    }
+    return { img: '', url: '' };
+  }
+
+  function iniciar() {
+    var st = document.createElement('style');
+    st.id = 'sbpStyles';
+    st.textContent = css;
+    document.head.appendChild(st);
+    if (!document.querySelector('link[href*="family=Poppins"]')) {
+      var f = document.createElement('link');
+      f.rel = 'stylesheet';
+      f.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap';
+      document.head.appendChild(f);
+    }
+
+    var bx = document.createElement('div');
+    bx.className = 'sbp';
+    bx.setAttribute('role', 'status');
+    bx.setAttribute('aria-live', 'polite');
+    bx.innerHTML = '<a class="sbp-link" href="/productos/"><span class="sbp-img"></span><span class="sbp-body"><span class="sbp-who"></span>' +
+      '<span class="sbp-row"><span class="sbp-prod"></span><span class="sbp-price"></span></span>' +
+      '<span class="sbp-time"><i></i><span></span></span></span></a>' +
+      '<button class="sbp-x" type="button" aria-label="Cerrar">×</button><span class="sbp-bar"></span>';
+    var q = function (s) { return bx.querySelector(s); };
+    var lk = q('.sbp-link'), ib = q('.sbp-img'), wh = q('.sbp-who'), pd = q('.sbp-prod'), pc = q('.sbp-price'), tt = q('.sbp-time span');
+    var ix = Math.floor(Math.random() * LS.length), t = null, off = false;
+
+    function pintar(c) {
+      var f = buscar(c.producto), src = c.img || f.img;
+      ib.innerHTML = '';
+      var im = document.createElement('img');
+      if (src) { im.alt = c.producto; im.onerror = function () { im.className = 'lg'; im.src = LOGO; }; im.src = src; }
+      else { im.alt = TIENDA; im.className = 'lg'; im.src = LOGO; }
+      ib.appendChild(im);
+      wh.textContent = '';
+      wh.appendChild(document.createTextNode(c.nombre + ' de '));
+      var b = document.createElement('b'); b.textContent = c.ciudad; wh.appendChild(b);
+      wh.appendChild(document.createTextNode(' compró'));
+      pd.textContent = c.producto;
+      pc.textContent = fm(c.precio);
+      tt.textContent = hace(c.fecha) + ' · ' + TIENDA;
+      lk.href = c.url || f.url || '/productos/';
+    }
+    function mostrar() {
+      if (off) return;
+      if (document.hidden) { t = setTimeout(mostrar, 3e3); return; }
+      pintar(LS[ix]); ix = (ix + 1) % LS.length;
+      bx.style.setProperty('--t', (VISIBLE / 1e3) + 's');
+      bx.classList.remove('on'); void bx.offsetWidth; bx.classList.add('on');
+      t = setTimeout(function () {
+        bx.classList.remove('on');
+        t = setTimeout(mostrar, ESPERA_MIN + Math.random() * (ESPERA_MAX - ESPERA_MIN));
+      }, VISIBLE);
+    }
+    bx.addEventListener('mouseenter', function () { clearTimeout(t); });
+    bx.addEventListener('mouseleave', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { bx.classList.remove('on'); t = setTimeout(mostrar, ESPERA_MIN); }, 2500);
+    });
+    q('.sbp-x').addEventListener('click', function () {
+      off = true; clearTimeout(t); bx.classList.remove('on');
+      try { sessionStorage.setItem('sbpOff', '1'); } catch (e) {}
+    });
+    document.body.appendChild(bx);
+    t = setTimeout(mostrar, PRIMERA);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
+})();
+
+
 /* ====== TARJETAS DE PRODUCTO · SIMONE SHOES ======
    Reemplaza el precio de cada producto por 3 cajas:
    precio de lista · transferencia con descuento · cuotas sin interés + botón "Ver más".
