@@ -212,8 +212,8 @@
         el = el.parentElement;
       }
       var prev = el.previousElementSibling;
-      var okBen = prev && prev.id === 'sbBeneficios' && prev.previousElementSibling === sec;
-      if (prev !== sec && !okBen) el.insertAdjacentElement('beforebegin', sec);
+      while (prev && (prev.id === 'sbBeneficios' || prev.id === 'sbCategorias')) prev = prev.previousElementSibling;
+      if (prev !== sec) el.insertAdjacentElement('beforebegin', sec);
     } else {
       var cont = document.querySelector('.js-home-sections-container, #content, .js-content, main');
       if (!cont) return;
@@ -435,6 +435,173 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', arrancar);
   } else { arrancar(); }
+})();
+
+
+/* ====== CATEGORÍAS (MARCAS) SIMONE SHOES ======
+   Se ubica justo debajo de los beneficios. Solo en el inicio. */
+(function () {
+  if (window.__sbCats || document.getElementById('sbCategorias')) return;
+  window.__sbCats = true;
+
+  var path = location.pathname.replace(/\/+$/, '');
+  var esInicio = path === '' || /^\/[a-z]{2}(-[a-z]{2})?$/i.test(path);
+  if (!esInicio) return;
+
+  /* ---------- Marcas (editables) ----------
+     url: poné acá el link real de cada categoría de tu tienda.
+     Ahora usan el buscador de Tienda Nube (/search/?q=...) para que funcionen desde ya. */
+  var R2 = 'https://pub-206117a07bdc4f2995a7200b0bd57f09.r2.dev/';
+  var CATS = [
+    { n: 'Adidas',      img: 'Logotipo%20Adidas%20sobre%20ondas%20azules.png',         url: '/search/?q=adidas' },
+    { n: 'New Balance', img: 'Logotipo%20New%20Balance%20sobre%20fondo%20azul.png',    url: '/search/?q=new+balance' },
+    { n: 'Nike',        img: 'Logotipo%20Nike%20sobre%20ondas%20azules.png',           url: '/search/?q=nike' },
+    { n: 'Puma',        img: 'Logotipo%20Puma%20en%20azul%20degradado.png',            url: '/search/?q=puma' },
+    { n: 'Vans',        img: 'Logotipo%20VANS%C2%AE%20sobre%20ondas%20azules.png',     url: '/search/?q=vans' },
+    { n: 'Jordan',      img: 'Silueta%20Jumpman%20sobre%20ondas%20azules.png',         url: '/search/?q=jordan' }
+  ];
+
+  /* ---------- CSS ---------- */
+  var css = `
+.sbc{
+  --n:#2f4058; --blue:#0b5fe0; --sky:#b5d8f7; --line:#dce7f2;
+  position:relative; width:100%; overflow:hidden; isolation:isolate;
+  padding:46px 0 54px;
+  background:linear-gradient(180deg,#f5f9fd 0%,#eaf3fb 100%);
+  font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+.sbc *{box-sizing:border-box;margin:0;padding:0}
+.sbc::before,.sbc::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none}
+.sbc::before{width:420px;height:420px;left:-140px;top:-120px;background:radial-gradient(circle,rgba(181,216,247,.55),transparent 70%)}
+.sbc::after{width:520px;height:520px;right:-180px;bottom:-200px;background:radial-gradient(circle,rgba(181,216,247,.5),transparent 70%)}
+.sbc-wrap{max-width:1200px;margin:0 auto;padding:0 4.4%}
+
+.sbc-head{text-align:center;margin-bottom:38px}
+.sbc-tag{display:inline-flex;align-items:center;gap:.8rem;font-size:.68rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:#7b8898;margin-bottom:.8rem}
+.sbc-tag i{display:inline-block;width:2.2rem;height:2px;background:var(--sky)}
+.sbc-title{
+  position:relative;display:inline-block;padding-bottom:16px;
+  font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;
+  font-size:clamp(2.1rem,4.6vw,3.3rem);line-height:1.02;letter-spacing:.01em;text-transform:uppercase;color:#16202e;
+}
+.sbc-title em{font-style:normal;color:var(--blue)}
+.sbc-title::after{content:"";position:absolute;left:50%;bottom:0;width:0;height:4px;border-radius:4px;background:var(--blue);transform:translateX(-50%);transition:width .9s cubic-bezier(.2,.9,.2,1) .4s}
+.sbc.in .sbc-title::after{width:64px}
+.sbc-sub{margin-top:12px;font-size:.95rem;line-height:1.5;color:#6b7684}
+
+.sbc-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:24px}
+.sbc-item{
+  display:flex;flex-direction:column;align-items:center;gap:16px;text-decoration:none!important;
+  opacity:0;transform:translateY(28px);
+  transition:opacity .7s ease var(--d,0s),transform .7s cubic-bezier(.2,.9,.2,1) var(--d,0s);
+}
+.sbc.in .sbc-item{opacity:1;transform:none}
+.sbc.in .sbc-item:hover{transform:translateY(-8px);transition-delay:0s}
+
+.sbc-ring{
+  position:relative;width:100%;aspect-ratio:1;border-radius:50%;
+  box-shadow:0 14px 28px rgba(47,64,88,.2);
+  animation:sbcFloat 5.5s ease-in-out infinite;animation-delay:var(--f,0s);
+}
+.sbc-ring::before{
+  content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--sky),var(--blue),var(--sky),#8fc2f0,var(--sky));
+  animation:sbcSpin 5s linear infinite;animation-play-state:paused;
+}
+.sbc-item:hover .sbc-ring::before{animation-play-state:running}
+.sbc-circ{
+  position:absolute;inset:5px;border-radius:50%;overflow:hidden;background:var(--n);
+  border:4px solid #fff;
+}
+.sbc-circ img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.2,.9,.2,1)}
+.sbc-item:hover .sbc-circ img{transform:scale(1.1)}
+@keyframes sbcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes sbcSpin{to{transform:rotate(360deg)}}
+
+.sbc-name{
+  position:relative;font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;
+  font-size:1.35rem;line-height:1;letter-spacing:.04em;text-transform:uppercase;color:#16202e;text-align:center;
+  padding-bottom:9px;
+}
+.sbc-name::after{content:"";position:absolute;left:50%;bottom:0;width:22px;height:3px;border-radius:3px;background:var(--blue);transform:translateX(-50%);transition:width .35s ease}
+.sbc-item:hover .sbc-name::after{width:48px}
+
+@media(max-width:1000px){
+  .sbc-grid{grid-template-columns:repeat(3,1fr);gap:26px 18px}
+}
+@media(max-width:700px){
+  .sbc{padding:32px 0 38px}
+  .sbc-wrap{padding:0 6%}
+  .sbc-head{margin-bottom:26px}
+  .sbc-tag{font-size:.6rem;letter-spacing:.24em}
+  .sbc-tag i{width:1.5rem}
+  .sbc-sub{font-size:.85rem}
+  .sbc-grid{gap:22px 14px}
+  .sbc-ring{box-shadow:0 8px 16px rgba(47,64,88,.2)}
+  .sbc-circ{inset:4px;border-width:3px}
+  .sbc-item{gap:11px}
+  .sbc-name{font-size:1rem;padding-bottom:7px}
+  .sbc-name::after{width:18px;height:2.5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .sbc-item{opacity:1;transform:none;transition:none}
+  .sbc-ring,.sbc-ring::before{animation:none}
+  .sbc-title::after{width:64px;transition:none}
+}`;
+
+  /* ---------- HTML ---------- */
+  var items = CATS.map(function (c, i) {
+    return '<a class="sbc-item" href="' + c.url + '" aria-label="Ver productos ' + c.n + '" style="--d:' + (i * 0.08).toFixed(2) + 's;--f:' + (i * 0.6).toFixed(1) + 's">' +
+      '<span class="sbc-ring"><span class="sbc-circ"><img src="' + R2 + c.img + '" alt="' + c.n + '" loading="lazy"></span></span>' +
+      '<span class="sbc-name">' + c.n + '</span></a>';
+  }).join('');
+
+  var sec = document.createElement('section');
+  sec.className = 'sbc';
+  sec.id = 'sbCategorias';
+  sec.setAttribute('aria-label', 'Categorías por marca');
+  sec.innerHTML =
+    '<div class="sbc-wrap">' +
+      '<div class="sbc-head"><span class="sbc-tag"><i></i>Categorías<i></i></span><br>' +
+      '<h2 class="sbc-title">Elegí tu <em>marca</em></h2>' +
+      '<p class="sbc-sub">Encontrá tus zapatillas favoritas</p></div>' +
+      '<div class="sbc-grid">' + items + '</div>' +
+    '</div>';
+
+  /* ---------- Estilos y fuentes ---------- */
+  var head = document.head;
+  if (!document.querySelector('link[href*="family=Anton"]') || !document.querySelector('link[href*="family=Poppins"]')) {
+    var f = document.createElement('link');
+    f.rel = 'stylesheet';
+    f.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;600&display=swap';
+    head.appendChild(f);
+  }
+  var st = document.createElement('style');
+  st.id = 'sbcStyles';
+  st.textContent = css;
+  head.appendChild(st);
+
+  /* ---------- Aparecer al hacer scroll ---------- */
+  function mostrar() { sec.classList.add('in'); }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es[es.length - 1].isIntersecting) { io.disconnect(); mostrar(); }
+    }, { threshold: 0.12 });
+    io.observe(sec);
+  } else { mostrar(); }
+
+  /* ---------- Ubicar justo debajo de los beneficios ---------- */
+  function ubicar() {
+    var ben = document.getElementById('sbBeneficios');
+    if (!ben) return;
+    if (ben.nextElementSibling !== sec) ben.insertAdjacentElement('afterend', sec);
+  }
+  function arrancar() {
+    ubicar();
+    var n = 0, t = setInterval(function () { ubicar(); if (++n > 40) clearInterval(t); }, 250);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar);
+  else arrancar();
 })();
 
 
