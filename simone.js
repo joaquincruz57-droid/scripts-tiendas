@@ -87,7 +87,7 @@
 
 /* Zapatilla que sobresale de la card */
 .sb-hero{
-  position:absolute; left:49cqw; top:-1cqw; width:30cqw; z-index:3; pointer-events:none;
+  position:absolute; left:50cqw; top:3cqw; width:22cqw; z-index:3; pointer-events:none;
   opacity:0; animation:sbHeroIn 1.1s .5s cubic-bezier(.2,.9,.2,1) forwards;
 }
 .sb-hero img{
@@ -107,7 +107,14 @@
 
 .sb-marron{left:7cqw;top:7cqw;width:17cqw;--d:.0;--t:5s;--r1:-4deg;--r2:3deg}
 .sb-negras{right:9cqw;bottom:4cqw;width:19cqw;--d:.2;--t:5.6s;--r1:4deg;--r2:-4deg}
-.sb-logo{left:8cqw;bottom:5cqw;width:10cqw;--d:.4;--t:4s;--r1:-2deg;--r2:2deg}
+
+/* Logo con halo difuminado para que se vea bien */
+.sb-logo{left:8cqw;bottom:5cqw;width:11cqw;--d:.4;--t:4s;--r1:-2deg;--r2:2deg}
+.sb-logo::before{
+  content:"";position:absolute;inset:-30%;z-index:-1;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(47,64,88,.95) 0%,rgba(47,64,88,.8) 55%,rgba(47,64,88,0) 100%);
+  filter:blur(8px);
+}
 
 .sb-px{translate:var(--px,0cqw) var(--py,0cqw);transition:translate .25s ease-out;will-change:translate}
 
@@ -115,7 +122,7 @@
   .sb{aspect-ratio:4/5.1}
   .sb-text{font-size:30cqw;top:46%}
   .sb-card{width:64cqw;top:11cqw;font-size:2.55cqw}
-  .sb-hero{left:38cqw;top:-2cqw;width:66cqw}
+  .sb-hero{left:44cqw;top:0cqw;width:48cqw}
   .sb-marron{left:2cqw;top:3cqw;width:30cqw}
   .sb-negras{right:2cqw;bottom:2cqw;width:34cqw}
   .sb-logo{left:4cqw;bottom:2cqw;width:20cqw}
