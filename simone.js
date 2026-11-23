@@ -605,6 +605,282 @@
 })();
 
 
+/* ====== REDES SOCIALES SIMONE SHOES · Instagram + TikTok ======
+   Se ubica justo debajo de los productos destacados. Solo en el inicio.
+   Los contadores suben solos hasta el número final cuando la sección aparece en pantalla. */
+(function () {
+  if (window.__sbSocial || document.getElementById('sbSocial')) return;
+  window.__sbSocial = true;
+
+  var path = location.pathname.replace(/\/+$/, '');
+  var esInicio = path === '' || /^\/[a-z]{2}(-[a-z]{2})?$/i.test(path);
+  if (!esInicio) return;
+
+  /* ---------- Datos (editables) ---------- */
+  var IG = { user: '@simoneshoesss', url: 'https://www.instagram.com/simoneshoesss/', seguidores: 2740 };
+  var TT = { user: '@simoneshoesss', url: 'https://www.tiktok.com/@simoneshoesss',    seguidores: 8870 };
+  var CINTA = ['@simoneshoesss', 'Seguinos', 'Nuevos ingresos', 'Envío gratis a todo el país', 'Simone Shoes'];
+
+  var reducido = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ---------- CSS ---------- */
+  var css = `
+.sso{
+  --p:0; --n:#2f4058; --blue:#0b5fe0; --sky:#b5d8f7;
+  position:relative; overflow:hidden; isolation:isolate; padding:66px 0 0;
+  background:linear-gradient(160deg,#3b506d 0%,#2f4058 45%,#243247 100%); color:#fff;
+  font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+.sso *{box-sizing:border-box;margin:0;padding:0}
+.sso-bg{position:absolute;inset:0;z-index:-1;pointer-events:none}
+.sso-bg i{position:absolute;border-radius:50%;will-change:transform}
+.sso-b1{width:460px;height:460px;left:-150px;top:-120px;background:radial-gradient(circle,rgba(181,216,247,.3),transparent 70%);transform:translate3d(0,calc(var(--p)*-60px),0)}
+.sso-b2{width:560px;height:560px;right:-190px;bottom:-190px;background:radial-gradient(circle,rgba(11,95,224,.4),transparent 70%);transform:translate3d(0,calc(var(--p)*70px),0)}
+.sso-wrap{position:relative;max-width:1200px;margin:0 auto;padding:0 4.4% 58px}
+
+.sso-head{text-align:center;max-width:640px;margin:0 auto 40px}
+.sso-tag{display:inline-flex;align-items:center;gap:.8rem;font-size:.68rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--sky);margin-bottom:.8rem}
+.sso-tag i{display:inline-block;width:2.2rem;height:2px;background:var(--sky)}
+.sso-title{
+  position:relative;display:inline-block;padding-bottom:16px;
+  font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;
+  font-size:clamp(2.1rem,4.8vw,3.4rem);line-height:1.02;letter-spacing:.01em;text-transform:uppercase;color:#fff;
+}
+.sso-title em{font-style:normal;color:var(--sky)}
+.sso-title::after{content:"";position:absolute;left:50%;bottom:0;width:0;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--sky),var(--blue));transform:translateX(-50%);transition:width 1s cubic-bezier(.2,.9,.2,1) .5s}
+.sso-head.vis .sso-title::after{width:70px}
+.sso-sub{margin-top:12px;font-size:.98rem;line-height:1.55;color:rgba(255,255,255,.72)}
+
+.sso-rv{opacity:0;transform:translateY(42px);transition:opacity .9s ease var(--d,0s),transform .9s cubic-bezier(.2,.9,.2,1) var(--d,0s)}
+.sso-rv.l{transform:translateX(-64px)}
+.sso-rv.r{transform:translateX(64px)}
+.sso-rv.vis{opacity:1;transform:none}
+
+.sso-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.sso-grid>article{display:flex}
+.sso-box{
+  position:relative;width:100%;overflow:hidden;isolation:isolate;border-radius:26px;
+  padding:34px 34px 30px;min-height:390px;display:flex;flex-direction:column;gap:14px;
+  text-decoration:none!important;transition:transform .4s cubic-bezier(.2,.9,.2,1),box-shadow .4s;
+}
+.sso-box:hover{transform:translateY(-7px)}
+.sso-ig{background:linear-gradient(145deg,#e6f3fe,#a6cff2);color:#16202e!important;box-shadow:0 20px 44px rgba(8,16,28,.38)}
+.sso-ig:hover{box-shadow:0 28px 56px rgba(8,16,28,.5)}
+.sso-tt{background:linear-gradient(150deg,#1d2a3c,#0f1722);color:#fff!important;border:1px solid rgba(181,216,247,.2);box-shadow:0 20px 44px rgba(8,16,28,.45)}
+.sso-tt:hover{box-shadow:0 28px 56px rgba(8,16,28,.6),0 0 40px rgba(11,95,224,.25)}
+.sso-tt::before{content:"";position:absolute;z-index:-1;width:340px;height:340px;right:-110px;top:-120px;border-radius:50%;background:radial-gradient(circle,rgba(11,95,224,.38),transparent 70%)}
+
+.sso-ghost{position:absolute;z-index:-1;right:-26px;bottom:-26px;width:190px;height:190px;stroke-width:1.4;animation:ssoFl 7s ease-in-out infinite}
+.sso-ig .sso-ghost{color:#fff;opacity:.45}
+.sso-tt .sso-ghost{color:var(--sky);opacity:.12}
+@keyframes ssoFl{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+.sso-sk{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sso-sk.f{fill:currentColor;stroke:none}
+
+.sso-top{display:flex;align-items:center;gap:14px}
+.sso-ic{flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;transition:transform .5s cubic-bezier(.2,.9,.2,1)}
+.sso-ic svg{width:26px;height:26px}
+.sso-box:hover .sso-ic{transform:rotate(-12deg) scale(1.08)}
+.sso-ig .sso-ic{background:var(--n);color:#fff}
+.sso-tt .sso-ic{background:var(--sky);color:var(--n)}
+.sso-who{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.sso-who strong{font-size:1rem;font-weight:700;word-break:break-all}
+.sso-who em{font-style:normal;font-size:.72rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.65}
+
+.sso-num{
+  margin-top:10px;font-family:"Anton","Bebas Neue",Impact,"Arial Narrow",sans-serif;font-weight:400;
+  font-size:clamp(3.8rem,7vw,6.2rem);line-height:.95;letter-spacing:.01em;font-variant-numeric:tabular-nums;
+}
+.sso-tt .sso-num{color:var(--sky)}
+.sso-lab{margin-top:-2px;font-size:.78rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase}
+.sso-barw{height:6px;border-radius:6px;overflow:hidden;max-width:25rem}
+.sso-ig .sso-barw{background:rgba(47,64,88,.18)}
+.sso-tt .sso-barw{background:rgba(255,255,255,.12)}
+.sso-fill{display:block;height:100%;width:0;border-radius:6px}
+.sso-ig .sso-fill{background:linear-gradient(90deg,var(--blue),var(--n))}
+.sso-tt .sso-fill{background:linear-gradient(90deg,var(--sky),var(--blue))}
+.sso-txt{max-width:25rem;font-size:.95rem;line-height:1.55;opacity:.82}
+
+.sso-btn{
+  position:relative;overflow:hidden;align-self:flex-start;margin-top:auto;display:inline-flex;align-items:center;gap:12px;
+  padding:11px 11px 11px 24px;border-radius:999px;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;line-height:1;
+  transition:gap .25s,background .25s;
+}
+.sso-btn::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);transition:left .7s}
+.sso-box:hover .sso-btn::before{left:130%}
+.sso-btn svg{flex:none;width:28px;height:28px;padding:7px;border-radius:50%;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+.sso-ig .sso-btn{background:var(--n);color:#fff}
+.sso-ig .sso-btn svg{background:var(--sky);stroke:var(--n)}
+.sso-tt .sso-btn{background:var(--sky);color:var(--n)}
+.sso-tt .sso-btn svg{background:var(--n);stroke:#fff}
+.sso-box:hover .sso-btn{gap:16px}
+.sso-box:hover .sso-btn svg{transform:translateX(3px)}
+.sso-ig:hover .sso-btn{background:#16202e}
+.sso-tt:hover .sso-btn{background:#fff}
+
+.sso-marq{position:relative;overflow:hidden;white-space:nowrap;padding:15px 0;background:var(--sky);color:#16202e}
+.sso-track{display:inline-flex;align-items:center;gap:26px;animation:ssoMq 40s linear infinite}
+.sso-marq:hover .sso-track{animation-play-state:paused}
+.sso-track span{font-weight:700;font-size:1.05rem;letter-spacing:.14em;text-transform:uppercase}
+.sso-track i{font-style:normal;font-size:.9rem;color:var(--blue)}
+@keyframes ssoMq{to{transform:translateX(-50%)}}
+
+@media(max-width:767px){
+  .sso{padding-top:44px}
+  .sso-wrap{padding-bottom:36px}
+  .sso-head{margin-bottom:28px}
+  .sso-tag{font-size:.6rem;letter-spacing:.24em}
+  .sso-tag i{width:1.5rem}
+  .sso-sub{font-size:.86rem}
+  .sso-rv.l,.sso-rv.r{transform:translateY(42px)}
+  .sso-grid{grid-template-columns:1fr;gap:16px}
+  .sso-box{padding:24px 22px 22px;min-height:0;border-radius:22px;gap:11px}
+  .sso-ic{width:44px;height:44px}
+  .sso-ic svg{width:22px;height:22px}
+  .sso-who strong{font-size:.86rem}
+  .sso-num{font-size:3.8rem}
+  .sso-ghost{width:130px;height:130px}
+  .sso-txt{font-size:.86rem}
+  .sso-btn{font-size:.66rem;padding-left:20px}
+  .sso-track span{font-size:.82rem}
+  .sso-track{gap:18px}
+  .sso-marq{padding:12px 0}
+}
+@media(prefers-reduced-motion:reduce){
+  .sso-rv{opacity:1!important;transform:none!important;transition:none!important}
+  .sso-ghost,.sso-track{animation:none}
+  .sso-title::after{width:70px;transition:none}
+  .sso-b1,.sso-b2{transform:none!important}
+}`;
+
+  /* ---------- HTML ---------- */
+  var FLECHA = '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  var cinta = '';
+  for (var i = 0; i < 4; i++) CINTA.forEach(function (t) { cinta += '<span>' + t + '</span><i>✦</i>'; });
+
+  var html =
+'<svg width="0" height="0" style="position:absolute" aria-hidden="true">' +
+  '<symbol id="ssoIg" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></symbol>' +
+  '<symbol id="ssoTt" viewBox="0 0 24 24"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5 2.6 2.6 0 0 1-2.6-2.6 2.6 2.6 0 0 1 2.6-2.6c.27 0 .53.04.77.12V9.66a5.7 5.7 0 0 0-.77-.05A5.7 5.7 0 0 0 4.2 15.3a5.7 5.7 0 0 0 5.66 5.7 5.7 5.7 0 0 0 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.25-1.48z"/></symbol>' +
+'</svg>' +
+'<div class="sso-bg"><i class="sso-b1"></i><i class="sso-b2"></i></div>' +
+'<div class="sso-wrap">' +
+  '<div class="sso-head sso-rv"><span class="sso-tag"><i></i>Comunidad Simone<i></i></span><br>' +
+    '<h2 class="sso-title">Seguinos en <em>redes</em></h2>' +
+    '<p class="sso-sub">Nuevos ingresos, novedades y promos antes que nadie. Sumate a la comunidad.</p></div>' +
+  '<div class="sso-grid">' +
+    '<article class="sso-rv l" style="--d:.1s"><a class="sso-box sso-ig" href="' + IG.url + '" target="_blank" rel="noopener">' +
+      '<svg class="sso-sk sso-ghost" viewBox="0 0 24 24"><use href="#ssoIg"/></svg>' +
+      '<div class="sso-top"><span class="sso-ic"><svg class="sso-sk" viewBox="0 0 24 24"><use href="#ssoIg"/></svg></span>' +
+        '<span class="sso-who"><strong>' + IG.user + '</strong><em>Instagram</em></span></div>' +
+      '<div class="sso-num" data-meta="' + IG.seguidores + '">+0</div>' +
+      '<div class="sso-lab">seguidores en Instagram</div>' +
+      '<div class="sso-barw"><span class="sso-fill"></span></div>' +
+      '<p class="sso-txt">Mirá todos los modelos, nuevos ingresos y promos en nuestro Instagram.</p>' +
+      '<span class="sso-btn">Seguinos en Instagram ' + FLECHA + '</span></a></article>' +
+    '<article class="sso-rv r" style="--d:.25s"><a class="sso-box sso-tt" href="' + TT.url + '" target="_blank" rel="noopener">' +
+      '<svg class="sso-sk f sso-ghost" viewBox="0 0 24 24"><use href="#ssoTt"/></svg>' +
+      '<div class="sso-top"><span class="sso-ic"><svg class="sso-sk f" viewBox="0 0 24 24"><use href="#ssoTt"/></svg></span>' +
+        '<span class="sso-who"><strong>' + TT.user + '</strong><em>TikTok</em></span></div>' +
+      '<div class="sso-num" data-meta="' + TT.seguidores + '">+0</div>' +
+      '<div class="sso-lab">seguidores en TikTok</div>' +
+      '<div class="sso-barw"><span class="sso-fill"></span></div>' +
+      '<p class="sso-txt">Videos, unboxings y todo lo nuevo de Simone Shoes en TikTok.</p>' +
+      '<span class="sso-btn">Seguinos en TikTok ' + FLECHA + '</span></a></article>' +
+  '</div>' +
+'</div>' +
+'<div class="sso-marq" aria-hidden="true"><div class="sso-track">' + cinta + cinta + '</div></div>';
+
+  var sec = document.createElement('section');
+  sec.className = 'sso';
+  sec.id = 'sbSocial';
+  sec.setAttribute('aria-label', 'Seguinos en redes sociales');
+  sec.innerHTML = html;
+
+  /* ---------- Estilos y fuentes ---------- */
+  var head = document.head;
+  if (!document.querySelector('link[href*="family=Anton"]') || !document.querySelector('link[href*="family=Poppins"]')) {
+    var f = document.createElement('link');
+    f.rel = 'stylesheet';
+    f.href = 'https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;600;700&display=swap';
+    head.appendChild(f);
+  }
+  var st = document.createElement('style');
+  st.id = 'ssoStyles';
+  st.textContent = css;
+  head.appendChild(st);
+
+  /* ---------- Contador que sube hasta el número final ---------- */
+  function fmt(n) { return '+' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+  function contar(el) {
+    if (el.getAttribute('data-run')) return;
+    el.setAttribute('data-run', '1');
+    var meta = parseFloat(el.getAttribute('data-meta')) || 0;
+    var fill = el.closest('.sso-box').querySelector('.sso-fill');
+    if (reducido) { el.textContent = fmt(meta); fill.style.width = '100%'; return; }
+    var t0 = null, dur = 2800;
+    function paso(t) {
+      if (!t0) t0 = t;
+      var k = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(meta * e);
+      fill.style.width = (e * 100).toFixed(1) + '%';
+      if (k < 1) requestAnimationFrame(paso);
+      else { el.textContent = fmt(meta); fill.style.width = '100%'; }
+    }
+    requestAnimationFrame(paso);
+  }
+
+  /* ---------- Animaciones al hacer scroll ---------- */
+  function revelar(x) {
+    x.classList.add('vis');
+    var n = x.querySelector('.sso-num');
+    if (n) setTimeout(function () { contar(n); }, 350);
+  }
+  [].forEach.call(sec.querySelectorAll('.sso-rv'), function (el) {
+    if (reducido || !('IntersectionObserver' in window)) { revelar(el); return; }
+    var io = new IntersectionObserver(function (es) {
+      if (es[es.length - 1].isIntersecting) { io.disconnect(); revelar(el); }
+    }, { threshold: 0.2, rootMargin: '0px 0px -6% 0px' });
+    io.observe(el);
+  });
+
+  /* ---------- Parallax suave del fondo ---------- */
+  if (!reducido) {
+    var visible = false, tick = false;
+    var up = function () {
+      tick = false;
+      var r = sec.getBoundingClientRect(), vh = window.innerHeight || 1;
+      sec.style.setProperty('--p', Math.max(-1.5, Math.min(1.5, (r.top + r.height / 2 - vh / 2) / vh)).toFixed(3));
+    };
+    var onScroll = function () { if (visible && !tick) { tick = true; requestAnimationFrame(up); } };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (e) { visible = e[e.length - 1].isIntersecting; if (visible) up(); }).observe(sec);
+    } else { visible = true; }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+  }
+
+  /* ---------- Ubicar debajo de los productos destacados ---------- */
+  function ubicar() {
+    var ref = null, l;
+    l = document.querySelectorAll('.js-section-products-featured');
+    if (l.length) ref = l[l.length - 1];
+    else {
+      l = document.querySelectorAll('.js-section-products-new, .js-section-products-sale');
+      ref = l.length ? l[l.length - 1] : document.getElementById('sbCategorias');
+    }
+    if (!ref) return;
+    if (ref.nextElementSibling !== sec) ref.insertAdjacentElement('afterend', sec);
+  }
+  function arrancar() {
+    ubicar();
+    var n = 0, t = setInterval(function () { ubicar(); if (++n > 40) clearInterval(t); }, 300);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrancar);
+  else arrancar();
+})();
+
+
 /* ====== TARJETAS DE PRODUCTO · SIMONE SHOES ======
    Reemplaza el precio de cada producto por 3 cajas:
    precio de lista · transferencia con descuento · cuotas sin interés + botón "Ver más".
