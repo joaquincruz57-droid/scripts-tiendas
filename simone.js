@@ -436,3 +436,154 @@
     document.addEventListener('DOMContentLoaded', arrancar);
   } else { arrancar(); }
 })();
+
+
+/* ====== TARJETAS DE PRODUCTO · SIMONE SHOES ======
+   Reemplaza el precio de cada producto por 3 cajas:
+   precio de lista · transferencia con descuento · cuotas sin interés + botón "Ver más".
+   Funciona en todas las páginas donde haya productos (inicio, categorías, buscador). */
+(function () {
+  if (window.__sbCards) return;
+  window.__sbCards = true;
+
+  /* ---------- Ajustes (editables) ---------- */
+  var DESC_TRANSF = 0.10;   /* 10% OFF por transferencia */
+  var CUOTAS = 3;           /* cuotas sin interés */
+  var LOGOS_BASE = 'https://d26lpennugtm8s.cloudfront.net/assets/common/img/logos/payment/new_logos_payment/';
+  var LOGOS = ['visa', 'mastercard', 'amex', 'ar/tarjeta-naranja', 'ar/cabal', 'mercadopago']; /* borrá los que no uses */
+
+  /* ---------- CSS ---------- */
+  var css = `
+:root{--sp-navy:#2f4058;--sp-ink:#16202e;--sp-sky:#b5d8f7;--sp-pale:#eaf3fb;--sp-blue:#0b5fe0;--sp-bg:#f5f9fd;--sp-line:#dce7f2}
+.spc-card,.spc-card *{font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.spc-card{background:#fff!important;border:1px solid var(--sp-line)!important;border-radius:1.1rem!important;padding:.6rem .6rem .8rem!important;box-shadow:0 .4rem 1.2rem rgba(47,64,88,.08);overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s}
+.spc-card:hover{transform:translateY(-3px);box-shadow:0 .9rem 1.8rem rgba(47,64,88,.18);border-color:var(--sp-sky)!important}
+.spc-card img{border-radius:.8rem}
+.spc-card .item-name,.spc-card .item-name a{font-weight:600!important;font-size:.9rem!important;line-height:1.25!important;color:var(--sp-ink)!important;text-transform:uppercase;letter-spacing:.03em}
+.spc-card .item-name{margin:.75rem .25rem .55rem!important}
+.spc-card .item-price-container>:not(.spc),.spc-card .item-actions,.spc-card .js-item-submit-container,.spc-card .js-addtocart{display:none!important}
+.spc-card .item-price-container{margin:0!important;padding:0!important}
+
+.spc{display:flex;flex-direction:column;gap:.45rem;padding:0 .1rem}
+.spc *{box-sizing:border-box}
+.spc-b{display:flex;flex-direction:column;gap:.35rem;padding:.55rem .75rem;border-radius:.75rem;border:1.5px solid}
+.spc-f{display:flex;align-items:center;gap:.65rem}
+.spc-i{flex:none;width:1.35rem;height:1.35rem}
+.spc-i svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.spc-tx{display:flex;flex-direction:column;min-width:0}
+.spc-et{font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;line-height:1.2}
+.spc-tx strong,.spc-pr{font-size:1.1rem;font-weight:700;line-height:1.15;letter-spacing:-.01em;font-style:normal}
+.spc-pr s{margin-left:.4rem;font-size:.72rem;font-weight:500;color:#9aa5b1}
+
+.spc-l{background:var(--sp-bg);border-color:var(--sp-line);color:#5d6b7c}
+.spc-l .spc-pr{color:var(--sp-ink)}
+.spc-l .spc-i{color:#7b8898}
+.spc-t{background:var(--sp-pale);border-color:var(--sp-sky);color:var(--sp-blue)}
+.spc-t strong{color:var(--sp-blue)}
+.spc-q{background:#fff;border-color:var(--sp-navy);color:var(--sp-navy)}
+.spc-q strong{color:var(--sp-navy)}
+
+.spc-tj{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;padding-top:.4rem;border-top:1px solid var(--sp-line)}
+.spc-tj img{height:1.1rem;width:auto;max-width:2.2rem;object-fit:contain;border-radius:0}
+
+.spc-v{align-self:flex-end;display:inline-flex;align-items:center;justify-content:center;margin-top:.2rem;padding:.7rem 1.2rem;border-radius:999px;background:var(--sp-navy);color:#fff!important;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none!important;line-height:1;transition:background .25s,color .25s,transform .25s}
+.spc-v:hover{background:var(--sp-sky);color:var(--sp-navy)!important;transform:translateY(-1px)}
+
+@media(max-width:767px){
+  .spc-card{padding:.45rem .45rem .65rem!important;border-radius:.95rem!important}
+  .spc-card .item-name,.spc-card .item-name a{font-size:.74rem!important}
+  .spc-card .item-name{margin:.6rem .15rem .45rem!important}
+  .spc{gap:.35rem;padding:0}
+  .spc-b{padding:.45rem .55rem;gap:.3rem;border-radius:.65rem}
+  .spc-f{gap:.45rem}
+  .spc-i{width:1.05rem;height:1.05rem}
+  .spc-et{font-size:.52rem;letter-spacing:.05em}
+  .spc-tx strong,.spc-pr{font-size:.92rem}
+  .spc-pr s{font-size:.6rem;margin-left:.25rem}
+  .spc-tj{gap:.2rem;padding-top:.3rem}
+  .spc-tj img{height:.85rem;max-width:1.6rem}
+  .spc-v{align-self:stretch;padding:.7rem .8rem;font-size:.62rem;letter-spacing:.1em}
+}
+@media(prefers-reduced-motion:reduce){.spc-card,.spc-v{transition:none}}`;
+
+  /* ---------- Utilidades ---------- */
+  function fm(n) { return '$' + Math.round(n).toLocaleString('es-AR'); }
+  function pn(t) {
+    if (!t) return 0;
+    var s = String(t).replace(/[^\d,\.]/g, '');
+    if (!s) return 0;
+    s = s.replace(/\./g, '').replace(',', '.');
+    var n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+  function ico(d) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + d + '</svg>'; }
+
+  var ICO_LISTA = ico('<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h4M7 14h2"/>');
+  var ICO_TRANSF = ico('<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 10v4M18 10v4"/>');
+  var ICO_CUOTAS = ico('<rect x="2.5" y="5" width="19" height="14" rx="2.2"/><path d="M2.5 10h19M6 15h4"/>');
+
+  var TJ = LOGOS.map(function (n) {
+    return '<img src="' + LOGOS_BASE + n + '@2x.png" alt="" loading="lazy" onerror="this.remove()">';
+  }).join('');
+
+  /* ---------- Estilos y fuente ---------- */
+  var D = document;
+  function init() {
+    if (!D.querySelector('link[href*="family=Poppins"]')) {
+      var f = D.createElement('link');
+      f.rel = 'stylesheet';
+      f.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap';
+      D.head.appendChild(f);
+    }
+    var st = D.createElement('style');
+    st.id = 'spcStyles';
+    st.textContent = css;
+    D.head.appendChild(st);
+
+    render();
+    window.addEventListener('load', render);
+    var pend = false;
+    new MutationObserver(function () {
+      if (pend) return;
+      pend = true;
+      requestAnimationFrame(function () { pend = false; render(); });
+    }).observe(D.body, { childList: true, subtree: true });
+  }
+
+  /* ---------- Armar las cajas en cada producto ---------- */
+  function armar(c) {
+    if (c.querySelector('.spc')) return;
+    var it = c.closest('.js-item-product'); if (!it) return;
+    var pd = c.querySelector('.js-price-display'); if (!pd) return;
+    var pr = parseFloat(pd.getAttribute('data-product-price')) / 100; if (!pr) return;
+    var cp = c.querySelector('.js-compare-price-display');
+    var antes = cp ? pn(cp.textContent) : 0;
+    var a = it.querySelector('.item-name a[href], .item-image a[href], a[href]');
+
+    c.insertAdjacentHTML('beforeend',
+      '<div class="spc">' +
+        '<div class="spc-b spc-l"><div class="spc-f"><span class="spc-i">' + ICO_LISTA + '</span>' +
+          '<span class="spc-tx"><span class="spc-et">Precio de lista</span>' +
+          '<span class="spc-pr">' + fm(pr) + (antes > pr ? '<s>' + fm(antes) + '</s>' : '') + '</span></span></div></div>' +
+        '<div class="spc-b spc-t"><div class="spc-f"><span class="spc-i">' + ICO_TRANSF + '</span>' +
+          '<span class="spc-tx"><span class="spc-et">Transferencia · ' + Math.round(DESC_TRANSF * 100) + '% OFF</span>' +
+          '<strong>' + fm(pr * (1 - DESC_TRANSF)) + '</strong></span></div></div>' +
+        '<div class="spc-b spc-q"><div class="spc-f"><span class="spc-i">' + ICO_CUOTAS + '</span>' +
+          '<span class="spc-tx"><span class="spc-et">' + CUOTAS + ' cuotas sin interés</span>' +
+          '<strong>' + fm(pr / CUOTAS) + '</strong></span></div>' +
+          '<div class="spc-tj">' + TJ + '</div></div>' +
+        '<a class="spc-v" href="' + (a ? a.getAttribute('href') : '#') + '">Ver más →</a>' +
+      '</div>');
+
+    var n = c;
+    while (n.parentElement && n.parentElement !== it) n = n.parentElement;
+    (n.parentElement === it && n !== it ? n : it).classList.add('spc-card');
+  }
+
+  function render() {
+    [].forEach.call(D.querySelectorAll('.js-item-product .item-price-container'), armar);
+  }
+
+  if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
